@@ -1,0 +1,41 @@
+{
+  "name": "@session-reviews/web",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "lint-fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.13.5",
+    "@emotion/styled": "^11.13.5",
+    "@excalidraw/excalidraw": "^0.18.0",
+    "@mui/icons-material": "^6.2.3",
+    "@mui/material": "^6.2.3",
+    "@liveblocks/client": "^3.9.2",
+    "@liveblocks/yjs": "^3.9.2",
+    "jotai": "^2.14.0",
+    "jotai-devtools": "^0.10.1",
+    "lodash-es": "^4.17.21",
+    "react": "^19",
+    "react-dom": "^19",
+    "react-router-dom": "^7.8.2",
+    "video.js": "^8.16.0",
+    "y-excalidraw": "^2.0.12",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/lodash-es": "^4.17.12",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/video.js": "^7.3.58",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "^5",
+    "vite": "^5"
+  }
+}
+

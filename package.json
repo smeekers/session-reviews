@@ -1,0 +1,32 @@
+{
+  "name": "session-reviews",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@9.15.9",
+  "scripts": {
+    "dev": "sst dev",
+    "backend:dev": "pnpm --filter backend dev",
+    "web:dev": "pnpm --filter web dev",
+    "test:e2e": "pnpm --filter playwright test",
+    "build": "sst build",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "lint-fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
+    "prettify": "prettier --check \"**/*.{ts,tsx,js,jsx,css,json,md}\"",
+    "prettify-fix": "prettier --write \"**/*.{ts,tsx,js,jsx,css,json,md}\""
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^7.14.1",
+    "@typescript-eslint/parser": "^7.14.1",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^8.5.0",
+    "prettier": "^3.4.2",
+    "sst": "latest",
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "react": "^19",
+    "react-dom": "^19"
+  }
+}
+
