@@ -27,7 +27,8 @@ export interface Session {
   liveblocksRoom: string;
   status: SessionStatus;
   bookmarks?: Bookmark[];
-  date: string;
+  startTime: string;
+  endTime?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -42,7 +43,7 @@ export class MemoryStore {
 
   async getAllSessions(): Promise<Session[]> {
     return Array.from(this.sessions.values()).sort((a, b) => {
-      return new Date(b.date).getTime() - new Date(a.date).getTime();
+      return new Date(b.startTime).getTime() - new Date(a.startTime).getTime();
     });
   }
 

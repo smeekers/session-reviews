@@ -16,9 +16,15 @@ export default $config({
   },
   async run() {
     // Import infrastructure
-    await import('./api');
-    await import('./secrets');
-    await import('./storage');
+    await import('./infra/secrets');
+    
+    // Only import storage if ENABLE_AWS_STORAGE is set
+    // This prevents SST from trying to create AWS resources when just managing secrets
+    if (process.env.ENABLE_AWS_STORAGE === 'true') {
+      await import('./infra/storage');
+    }
+    
+    await import('./infra/api');
   },
 });
 

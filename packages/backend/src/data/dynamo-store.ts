@@ -29,9 +29,9 @@ class DynamoStore {
     );
 
     const sessions = (result.Items || []) as Session[];
-    // Sort by date descending
+    // Sort by startTime descending
     return sessions.sort((a, b) => {
-      return new Date(b.date).getTime() - new Date(a.date).getTime();
+      return new Date(b.startTime).getTime() - new Date(a.startTime).getTime();
     });
   }
 

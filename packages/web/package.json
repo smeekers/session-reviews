@@ -33,6 +33,8 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/video.js": "^7.3.58",
+    "@vanilla-extract/css": "^1.16.1",
+    "@vanilla-extract/vite-plugin": "^4.0.20",
     "@vitejs/plugin-react": "^4.3.4",
     "typescript": "^5",
     "vite": "^5"

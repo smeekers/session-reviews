@@ -9,7 +9,8 @@ const createSessionSchema = z.object({
   uid: z.string().min(1),
   liveblocksRoom: z.string().min(1),
   status: z.enum(['in-progress', 'processing', 'completed', 'reviewed']).default('in-progress'),
-  date: z.string().optional(),
+  startTime: z.string(),
+  endTime: z.string().optional(),
 });
 
 const updateSessionSchema = z.object({
@@ -18,6 +19,8 @@ const updateSessionSchema = z.object({
   aiSummary: z.string().optional(),
   aiSummaryFeedback: z.union([z.literal(0), z.literal(1)]).optional(),
   status: z.enum(['in-progress', 'processing', 'completed', 'reviewed']).optional(),
+  startTime: z.string().optional(),
+  endTime: z.string().optional(),
   bookmarks: z
     .array(
       z.object({
@@ -76,10 +79,10 @@ sessionsRouter.get('/:uid', async (req, res) => {
 sessionsRouter.post('/', async (req, res) => {
   try {
     const data = createSessionSchema.parse(req.body);
-    const date = data.date || new Date().toISOString();
+    const startTime = data.startTime || new Date().toISOString();
     const session = await store.createSession({
       ...data,
-      date,
+      startTime,
       bookmarks: [],
       aiSuggestions: [],
     });
