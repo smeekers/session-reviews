@@ -1,16 +1,11 @@
 import { useAtom } from 'jotai';
-import { atom } from 'jotai';
 import { useCallback, useEffect } from 'react';
-import type { Session } from '../../types';
+import { sessionsAtom, sessionsErrorAtom, sessionsLoadingAtom } from '../../atoms';
 
-const sessionsAtom = atom<Session[]>([]);
-const loadingAtom = atom<boolean>(false);
-const errorAtom = atom<Error | null>(null);
-
-export function useSessions() {
+function useSessions() {
   const [sessions, setSessions] = useAtom(sessionsAtom);
-  const [loading, setLoading] = useAtom(loadingAtom);
-  const [error, setError] = useAtom(errorAtom);
+  const [loading, setLoading] = useAtom(sessionsLoadingAtom);
+  const [error, setError] = useAtom(sessionsErrorAtom);
 
   const fetchSessions = useCallback(async () => {
     setLoading(true);
@@ -41,4 +36,6 @@ export function useSessions() {
     refetch: fetchSessions,
   };
 }
+
+export default useSessions;
 

@@ -1,5 +1,6 @@
 import * as styles from './index.css';
 import { AccessTime, CalendarToday } from '@mui/icons-material';
+import { format, formatDistanceStrict } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { Chip, Stack, Typography, UiCard, UiCardActionArea, UiCardContent } from '../../ui-library';
 import type { Session } from '../../types';
@@ -12,20 +13,14 @@ function SessionCard({ session }: SessionCardProps) {
   const navigate = useNavigate();
 
   const startDate = new Date(session.startTime);
-  const formattedDate = startDate.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
-  const formattedTime = startDate.toLocaleTimeString('en-US', {
-    hour: 'numeric',
-    minute: '2-digit',
-  });
+  const formattedDate = format(startDate, 'MMM dd, yyyy');
+  const formattedTime = format(startDate, 'h:mmaaa');
 
-  const duration = session.endTime
-    ? Math.round((new Date(session.endTime).getTime() - startDate.getTime()) / 1000 / 60)
-    : null;
-  const durationText = duration ? `${duration} min` : 'In progress';
+  const durationText = session.endTime
+    ? formatDistanceStrict(startDate, new Date(session.endTime), {
+        unit: 'minute',
+      })
+    : 'In progress';
 
   const statusColors: Record<Session['status'], 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'error'> = {
     'in-progress': 'primary',
@@ -83,7 +78,7 @@ function SessionCard({ session }: SessionCardProps) {
 
           {session.aiSummary && session.status !== 'in-progress' && session.status !== 'processing' ? (
             <Typography className={styles.summary} variant="body2" color="text.secondary">
-              {session.aiSummary.length > 150 ? `${session.aiSummary.substring(0, 150)}...` : session.aiSummary}
+              {session.aiSummary}
             </Typography>
           ) : null}
         </UiCardContent>

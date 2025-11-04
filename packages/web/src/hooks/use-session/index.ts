@@ -1,32 +1,17 @@
 import { useAtom } from 'jotai';
-import { atom } from 'jotai';
-import { useCallback, useEffect } from 'react';
-import type { Session } from '../../types';
+import { useCallback, useEffect, useState } from 'react';
+import { sessionCacheAtom } from '../../atoms';
 
-const sessionAtomMap = atom<Map<string, Session>>(new Map());
-const loadingAtomMap = atom<Map<string, boolean>>(new Map());
-const errorAtomMap = atom<Map<string, Error | null>>(new Map());
+function useSession(sessionUid: string) {
+  const [sessionCache, setSessionCache] = useAtom(sessionCacheAtom);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<Error | null>(null);
 
-export function useSession(sessionUid: string) {
-  const [sessionMap, setSessionMap] = useAtom(sessionAtomMap);
-  const [loadingMap, setLoadingMap] = useAtom(loadingAtomMap);
-  const [errorMap, setErrorMap] = useAtom(errorAtomMap);
-
-  const session = sessionMap.get(sessionUid);
-  const loading = loadingMap.get(sessionUid) ?? false;
-  const error = errorMap.get(sessionUid) ?? null;
+  const session = sessionCache.get(sessionUid);
 
   const fetchSession = useCallback(async () => {
-    setLoadingMap((prev) => {
-      const next = new Map(prev);
-      next.set(sessionUid, true);
-      return next;
-    });
-    setErrorMap((prev) => {
-      const next = new Map(prev);
-      next.set(sessionUid, null);
-      return next;
-    });
+    setLoading(true);
+    setError(null);
 
     try {
       const response = await fetch(`/api/sessions/${sessionUid}`);
@@ -34,31 +19,23 @@ export function useSession(sessionUid: string) {
         throw new Error(`Failed to fetch session: ${response.statusText}`);
       }
       const data = await response.json();
-      setSessionMap((prev) => {
+      setSessionCache((prev) => {
         const next = new Map(prev);
         next.set(sessionUid, data);
         return next;
       });
     } catch (err) {
-      setErrorMap((prev) => {
-        const next = new Map(prev);
-        next.set(sessionUid, err instanceof Error ? err : new Error('Unknown error'));
-        return next;
-      });
+      setError(err instanceof Error ? err : new Error('Unknown error'));
     } finally {
-      setLoadingMap((prev) => {
-        const next = new Map(prev);
-        next.set(sessionUid, false);
-        return next;
-      });
+      setLoading(false);
     }
-  }, [sessionUid, setSessionMap, setLoadingMap, setErrorMap]);
+  }, [sessionUid, setSessionCache]);
 
   useEffect(() => {
-    if (!session) {
+    if (!session || session.uid !== sessionUid) {
       fetchSession();
     }
-  }, [session, fetchSession]);
+  }, [sessionUid, session, fetchSession]);
 
   return {
     session,
@@ -67,4 +44,6 @@ export function useSession(sessionUid: string) {
     refetch: fetchSession,
   };
 }
+
+export default useSession;
 

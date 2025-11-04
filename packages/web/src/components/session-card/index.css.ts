@@ -32,6 +32,11 @@ export const icon = style({
 });
 
 export const summary = style({
+  display: '-webkit-box',
   marginTop: '0.5rem', // 8px
+  overflow: 'hidden',
+  WebkitBoxOrient: 'vertical',
+  WebkitLineClamp: 3,
+  wordBreak: 'break-word',
 });
 

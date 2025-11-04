@@ -18,6 +18,7 @@
     "@mui/material": "^6.2.3",
     "@liveblocks/client": "^3.9.2",
     "@liveblocks/yjs": "^3.9.2",
+    "date-fns": "^4.1.0",
     "jotai": "^2.14.0",
     "jotai-devtools": "^0.10.1",
     "lodash-es": "^4.17.21",
