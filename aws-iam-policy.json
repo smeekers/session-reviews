@@ -22,9 +22,22 @@
         "iam:GetRolePolicy",
         "lambda:*",
         "apigateway:*",
+        "appsync:*",
         "logs:*",
         "events:*",
-        "ecr:*"
+        "ecr:*",
+        "codebuild:*",
+        "codedeploy:*",
+        "sns:*",
+        "sqs:*",
+        "states:*",
+        "kms:*",
+        "secretsmanager:*",
+        "rds:*",
+        "ec2:Describe*",
+        "ec2:List*",
+        "vpc:*",
+        "cloudwatch:*"
       ],
       "Resource": "*"
     },

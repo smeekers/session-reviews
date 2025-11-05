@@ -1,45 +1,21 @@
-import { useMemo } from 'react';
-import { Container, Stack, Typography } from '../../ui-library';
+import { useAtom } from 'jotai';
+import { Stack, Typography } from '../../ui-library';
+import { statusFilterAtom } from '../../atoms/filters';
 import SessionCard from '../session-card';
-import { useSessions } from '../../hooks';
-import type { SessionStatus } from '../../types';
-import * as styles from './index.css';
+import type { Session } from '../../types';
 
 interface SessionListProps {
-  statusFilter: SessionStatus | 'all';
+  sessions: Session[];
 }
 
-function SessionList({ statusFilter }: SessionListProps) {
-  const { sessions, loading, error } = useSessions();
+function SessionList({ sessions }: SessionListProps) {
+  const [statusFilter] = useAtom(statusFilterAtom);
 
-  const filteredSessions = useMemo(() => {
-    if (statusFilter === 'all') {
-      return sessions;
-    }
-    return sessions.filter((session) => session.status === statusFilter);
-  }, [sessions, statusFilter]);
-
-  if (loading) {
-    return (
-      <Container className={styles.container} maxWidth="lg">
-        <Typography>Loading sessions...</Typography>
-      </Container>
-    );
-  }
-
-  if (error) {
-    return (
-      <Container className={styles.container} maxWidth="lg">
-        <Typography color="error">Error loading sessions: {error.message}</Typography>
-      </Container>
-    );
-  }
+  const filteredSessions = sessions.filter((session) => statusFilter[session.status] === true);
 
   if (filteredSessions.length === 0) {
     return (
-      <Container className={styles.container} maxWidth="lg">
-        <Typography color="text.secondary">No sessions found.</Typography>
-      </Container>
+      <Typography color="text.secondary">No sessions found.</Typography>
     );
   }
 

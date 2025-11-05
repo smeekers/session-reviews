@@ -1,34 +1,54 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button, Container, Stack, Typography } from '../../ui-library';
+import { useMemo } from 'react';
+import { Container, Stack, Typography } from '../../ui-library';
+import ActiveSessions from '../../components/active-sessions';
+import PastSessions from '../../components/past-sessions';
 import SessionFilters from '../../components/session-filters';
-import SessionList from '../../components/session-list';
-import type { SessionStatus } from '../../types';
+import { useSessions } from '../../hooks';
 import * as styles from './index.css';
 
 function Home() {
-  const [statusFilter, setStatusFilter] = useState<SessionStatus | 'all'>('all');
-  const navigate = useNavigate();
+  const { sessions, loading, error } = useSessions();
 
-  function handleNewSession() {
-    // TODO: Create new session and navigate to live-session
-    const newUid = `session_${Date.now()}`;
-    navigate(`/live-session/${newUid}`);
+  const { activeSessions, pastSessions } = useMemo(() => {
+    const active: typeof sessions = [];
+    const past: typeof sessions = [];
+
+    sessions.forEach((session) => {
+      if (session.status === 'ready' || session.status === 'in-progress') {
+        active.push(session);
+      } else {
+        past.push(session);
+      }
+    });
+
+    return { activeSessions: active, pastSessions: past };
+  }, [sessions]);
+
+  if (loading) {
+    return (
+      <Container className={styles.container} maxWidth="lg">
+        <Typography>Loading sessions...</Typography>
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container className={styles.container} maxWidth="lg">
+        <Typography color="error">Error loading sessions: {error.message}</Typography>
+      </Container>
+    );
   }
 
   return (
     <Container className={styles.container} maxWidth="lg">
       <Stack spacing={3}>
-        <Stack className={styles.header} direction="row" justifyContent="space-between">
-          <Typography variant="h4">Session Reviews</Typography>
-          <Button onClick={handleNewSession} variant="contained">
-            New Session
-          </Button>
-        </Stack>
+        <Typography variant="h4">Session Reviews</Typography>
 
-        <SessionFilters statusFilter={statusFilter} onStatusFilterChange={setStatusFilter} />
+        <SessionFilters />
 
-        <SessionList statusFilter={statusFilter} />
+        <ActiveSessions sessions={activeSessions} />
+        <PastSessions sessions={pastSessions} />
       </Stack>
     </Container>
   );

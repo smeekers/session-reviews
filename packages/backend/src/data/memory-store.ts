@@ -1,7 +1,7 @@
 // In-memory data store for local development
 // This will be replaced with DynamoDB in production
 
-export type SessionStatus = 'in-progress' | 'processing' | 'completed' | 'reviewed';
+export type SessionStatus = 'ready' | 'in-progress' | 'processing' | 'completed' | 'reviewed';
 
 export interface Bookmark {
   id: string;
@@ -19,6 +19,7 @@ export interface AISuggestion {
 
 export interface Session {
   uid: string;
+  name?: string;
   videoUrl?: string;
   transcript?: string;
   aiSummary?: string;
@@ -186,6 +187,3 @@ export class MemoryStore {
   }
 }
 
-// Note: store is exported from index.ts
-// This allows switching between MemoryStore and DynamoStore
-export type { Session, Bookmark, AISuggestion };

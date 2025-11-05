@@ -18,6 +18,7 @@ function App() {
       <CssBaseline />
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/sessions" element={<Home />} />
         <Route path="/sessions/:sessionUid" element={<SessionDetails />} />
         <Route path="/live-session/:sessionUid" element={<LiveSession />} />
         <Route path="/whiteboard/:sessionUid" element={<Whiteboard />} />

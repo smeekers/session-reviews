@@ -2,9 +2,9 @@
 // This implements the same interface as MemoryStore for easy migration
 // Currently a skeleton - implement when ready to migrate
 
-import { GetCommand, PutCommand, UpdateCommand, DeleteCommand, ScanCommand } from '@aws-sdk/lib-dynamodb';
+import { GetCommand, PutCommand, DeleteCommand, ScanCommand } from '@aws-sdk/lib-dynamodb';
 import { dynamoClient, getSessionsTableName } from '../lib/aws';
-import type { Session, Bookmark, AISuggestion, SessionStatus } from './memory-store';
+import type { Session, Bookmark, AISuggestion } from './memory-store';
 
 class DynamoStore {
   private tableName = getSessionsTableName();

@@ -1,4 +1,4 @@
-export type SessionStatus = 'in-progress' | 'processing' | 'completed' | 'reviewed';
+export type SessionStatus = 'ready' | 'in-progress' | 'processing' | 'completed' | 'reviewed';
 
 export interface Bookmark {
   id: string;
@@ -16,6 +16,7 @@ export interface AISuggestion {
 
 export interface Session {
   uid: string;
+  name?: string;
   videoUrl?: string;
   transcript?: string;
   aiSummary?: string;

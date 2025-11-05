@@ -7,18 +7,20 @@ export const sessionsRouter = Router();
 
 const createSessionSchema = z.object({
   uid: z.string().min(1),
+  name: z.string().optional(),
   liveblocksRoom: z.string().min(1),
-  status: z.enum(['in-progress', 'processing', 'completed', 'reviewed']).default('in-progress'),
+  status: z.enum(['ready', 'in-progress', 'processing', 'completed', 'reviewed']).default('ready'),
   startTime: z.string(),
   endTime: z.string().optional(),
 });
 
 const updateSessionSchema = z.object({
+  name: z.string().optional(),
   videoUrl: z.string().url().optional(),
   transcript: z.string().optional(),
   aiSummary: z.string().optional(),
   aiSummaryFeedback: z.union([z.literal(0), z.literal(1)]).optional(),
-  status: z.enum(['in-progress', 'processing', 'completed', 'reviewed']).optional(),
+  status: z.enum(['ready', 'in-progress', 'processing', 'completed', 'reviewed']).optional(),
   startTime: z.string().optional(),
   endTime: z.string().optional(),
   bookmarks: z

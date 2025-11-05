@@ -25,6 +25,7 @@ export default $config({
     }
     
     await import('./infra/api');
+    await import('./infra/web');
   },
 });
 

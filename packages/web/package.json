@@ -14,10 +14,11 @@
     "@emotion/react": "^11.13.5",
     "@emotion/styled": "^11.13.5",
     "@excalidraw/excalidraw": "^0.18.0",
-    "@mui/icons-material": "^6.2.3",
-    "@mui/material": "^6.2.3",
     "@liveblocks/client": "^3.9.2",
     "@liveblocks/yjs": "^3.9.2",
+    "@mui/icons-material": "^6.2.3",
+    "@mui/material": "^6.2.3",
+    "@tanstack/react-query": "^5.90.6",
     "date-fns": "^4.1.0",
     "jotai": "^2.14.0",
     "jotai-devtools": "^0.10.1",
@@ -41,4 +42,3 @@
     "vite": "^5"
   }
 }
-

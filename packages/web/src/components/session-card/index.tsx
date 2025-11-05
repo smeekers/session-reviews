@@ -2,6 +2,7 @@ import * as styles from './index.css';
 import { AccessTime, CalendarToday } from '@mui/icons-material';
 import { format, formatDistanceStrict } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
+import { ROUTES, statusColors, statusLabels } from '../../constants';
 import { Chip, Stack, Typography, UiCard, UiCardActionArea, UiCardContent } from '../../ui-library';
 import type { Session } from '../../types';
 
@@ -22,22 +23,15 @@ function SessionCard({ session }: SessionCardProps) {
       })
     : 'In progress';
 
-  const statusColors: Record<Session['status'], 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'error'> = {
-    'in-progress': 'primary',
-    processing: 'warning',
-    completed: 'default',
-    reviewed: 'success',
-  };
-
-  const statusLabels: Record<Session['status'], string> = {
-    'in-progress': 'In Progress',
-    processing: 'Processing',
-    completed: 'Completed',
-    reviewed: 'Reviewed',
-  };
-
   function handleClick() {
-    navigate(`/sessions/${session.uid}`);
+    if (session.status === 'ready') {
+      navigate(ROUTES.LIVE_SESSION(session.uid));
+    } else if (session.status === 'in-progress') {
+      navigate(ROUTES.WHITEBOARD(session.uid));
+    } else {
+      // All past sessions: processing, completed, reviewed
+      navigate(ROUTES.SESSION_DETAILS(session.uid));
+    }
   }
 
   function handleKeyDown(event: React.KeyboardEvent) {
@@ -57,12 +51,17 @@ function SessionCard({ session }: SessionCardProps) {
         tabIndex={0}
       >
         <UiCardContent className={styles.content}>
-          <Stack className={styles.header} direction="row" spacing={1}>
-            <Chip
-              color={statusColors[session.status]}
-              label={statusLabels[session.status]}
-              size="small"
-            />
+          <Stack className={styles.header} direction="row" spacing={1} justifyContent="space-between">
+            <Stack direction="row" spacing={1}>
+              <Chip
+                color={statusColors[session.status]}
+                label={statusLabels[session.status]}
+                size="small"
+              />
+            </Stack>
+            {session.name && (
+              <Typography variant="h6">{session.name}</Typography>
+            )}
           </Stack>
 
           <Stack className={styles.details} direction="row" spacing={2}>
