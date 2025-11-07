@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAtom } from 'jotai';
+import { ExpandMore, ExpandLess } from '@mui/icons-material';
 import * as styles from './index.css';
 import { statusFilterAtom } from '../../atoms/filters';
 import { statusOptions } from '../../constants/session-status';
@@ -37,6 +38,7 @@ function SessionFilters() {
         aria-controls={open ? 'status-filter-menu' : undefined}
         aria-haspopup="true"
         aria-expanded={open ? 'true' : undefined}
+        endIcon={open ? <ExpandLess /> : <ExpandMore />}
         onClick={handleClick}
         variant="outlined"
       >

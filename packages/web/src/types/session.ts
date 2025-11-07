@@ -25,7 +25,7 @@ export interface Session {
   liveblocksRoom: string;
   status: SessionStatus;
   bookmarks?: Bookmark[];
-  startTime: string;
+  startTime?: string;
   endTime?: string;
   createdAt: string;
   updatedAt: string;

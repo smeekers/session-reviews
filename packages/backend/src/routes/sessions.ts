@@ -1,17 +1,12 @@
 import { Router } from 'express';
 import { z } from 'zod';
+import { MOCK_VIDEO_URL } from '../constants/video';
 import { store } from '../data';
-import type { SessionStatus } from '../data';
 
 export const sessionsRouter = Router();
 
 const createSessionSchema = z.object({
-  uid: z.string().min(1),
   name: z.string().optional(),
-  liveblocksRoom: z.string().min(1),
-  status: z.enum(['ready', 'in-progress', 'processing', 'completed', 'reviewed']).default('ready'),
-  startTime: z.string(),
-  endTime: z.string().optional(),
 });
 
 const updateSessionSchema = z.object({
@@ -81,10 +76,16 @@ sessionsRouter.get('/:uid', async (req, res) => {
 sessionsRouter.post('/', async (req, res) => {
   try {
     const data = createSessionSchema.parse(req.body);
-    const startTime = data.startTime || new Date().toISOString();
+    
+    // Generate session UID and liveblocks room name
+    const uid = `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    const liveblocksRoom = `room_${uid}`;
+    
     const session = await store.createSession({
-      ...data,
-      startTime,
+      uid,
+      name: data.name,
+      liveblocksRoom,
+      status: 'ready',
       bookmarks: [],
       aiSuggestions: [],
     });
@@ -101,7 +102,30 @@ sessionsRouter.post('/', async (req, res) => {
 sessionsRouter.put('/:uid', async (req, res) => {
   try {
     const data = updateSessionSchema.parse(req.body);
-    const session = await store.updateSession(req.params.uid, data);
+    
+    // Get existing session to check current state
+    const existingSession = await store.getSession(req.params.uid);
+    if (!existingSession) {
+      return res.status(404).json({ error: 'Session not found' });
+    }
+
+    // Auto-set video URL when session ends (status changes to processing/completed with endTime)
+    const updates: typeof data = { ...data };
+    const statusChangedToProcessingOrCompleted = 
+      (data.status === 'processing' || data.status === 'completed') &&
+      existingSession.status !== 'processing' &&
+      existingSession.status !== 'completed';
+    
+    // Also set video URL if endTime is provided and session doesn't have one yet
+    const hasEndTime = data.endTime || existingSession.endTime;
+    const needsVideoUrl = !existingSession.videoUrl && !data.videoUrl;
+    
+    if ((statusChangedToProcessingOrCompleted || hasEndTime) && needsVideoUrl) {
+      // Simulate S3 upload - set mock YouTube URL
+      updates.videoUrl = MOCK_VIDEO_URL;
+    }
+
+    const session = await store.updateSession(req.params.uid, updates);
     if (!session) {
       return res.status(404).json({ error: 'Session not found' });
     }

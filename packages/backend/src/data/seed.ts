@@ -1,3 +1,4 @@
+import { MOCK_VIDEO_URL } from '../constants/video';
 import { generateMockSummary, generateMockSuggestions, generateMockTranscript } from '../lib/mock-ai';
 import { MemoryStore } from './memory-store';
 import type { AISuggestion, Bookmark, Session } from './memory-store';
@@ -69,7 +70,7 @@ export async function seedStore(store: MemoryStore): Promise<void> {
     return {
       uid,
       name: options?.name,
-      videoUrl: options?.videoUrl || (endTime ? `https://example.com/videos/${uid}.mp4` : undefined),
+      videoUrl: options?.videoUrl || (endTime ? MOCK_VIDEO_URL : undefined),
       transcript: endTime && options?.hasSummary ? generateMockTranscript() : undefined,
       aiSummary: endTime && options?.hasSummary ? generateMockSummary() : undefined,
       aiSummaryFeedback: options?.summaryFeedback,
@@ -108,12 +109,9 @@ export async function seedStore(store: MemoryStore): Promise<void> {
   sessions.push(
     createSession('session_003', 'processing', processingStart, processingEnd, {
       hasBookmarks: true,
+      // videoUrl will be set automatically since endTime is provided
     })
   );
-
-  // Configure your S3 bucket URL here
-  // Example: 'https://my-bucket.s3.us-west-2.amazonaws.com'
-  const S3_BASE_URL = process.env.S3_BASE_URL || 'https://example.com/videos';
 
   // Session 4: Completed (ready for review, no feedback yet)
   const completedStart = daysAgo(2);
@@ -124,7 +122,6 @@ export async function seedStore(store: MemoryStore): Promise<void> {
       hasSuggestions: true,
       hasBookmarks: true,
       name: 'System Design Deep Dive',
-      videoUrl: `${S3_BASE_URL}/session_003.mp4`, // Replace with your actual video
     })
   );
 
@@ -137,7 +134,6 @@ export async function seedStore(store: MemoryStore): Promise<void> {
       hasSuggestions: true,
       hasBookmarks: true,
       summaryFeedback: 1, // Thumbs up
-      videoUrl: `${S3_BASE_URL}/session_005.mp4`, // Replace with your actual video
     })
   );
 
@@ -149,7 +145,6 @@ export async function seedStore(store: MemoryStore): Promise<void> {
       hasSummary: true,
       hasSuggestions: true,
       hasBookmarks: true,
-      videoUrl: `${S3_BASE_URL}/session_005.mp4`, // Replace with your actual video
     })
   );
 
@@ -162,7 +157,6 @@ export async function seedStore(store: MemoryStore): Promise<void> {
       hasSuggestions: true,
       hasBookmarks: true,
       summaryFeedback: 0, // Thumbs down
-      videoUrl: `${S3_BASE_URL}/session_007.mp4`, // Replace with your actual video
     })
   );
 
@@ -174,7 +168,6 @@ export async function seedStore(store: MemoryStore): Promise<void> {
       hasSummary: true,
       hasSuggestions: true,
       hasBookmarks: true,
-      videoUrl: `${S3_BASE_URL}/session_007.mp4`, // Replace with your actual video
     })
   );
 

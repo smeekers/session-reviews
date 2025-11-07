@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ROUTES } from '../../constants';
-import { Button, Stack, Typography } from '../../ui-library';
+import { useAtom } from 'jotai';
+import { Add, Remove } from '@mui/icons-material';
+import { bannerAtom } from '../../atoms/banner';
+import { Button, IconButton, Stack, Typography } from '../../ui-library';
+import NewSessionDialog from '../new-session-dialog';
 import SessionList from '../session-list';
 import type { Session } from '../../types';
 import * as styles from './index.css';
@@ -12,30 +14,65 @@ interface ActiveSessionsProps {
 
 function ActiveSessions({ sessions }: ActiveSessionsProps) {
   const [expanded, setExpanded] = useState(true);
-  const navigate = useNavigate();
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [, setBannerState] = useAtom(bannerAtom);
 
   function handleNewSession() {
-    // TODO: Create new session and navigate to live-session
-    const newUid = `session_${Date.now()}`;
-    navigate(ROUTES.LIVE_SESSION(newUid));
+    setDialogOpen(true);
+  }
+
+  function handleDialogClose() {
+    setDialogOpen(false);
+  }
+
+  function handleSessionCreated(sessionUid: string, sessionName?: string) {
+    setBannerState({
+      type: 'ready',
+      sessionUid,
+      sessionName,
+    });
   }
 
   return (
-    <Stack spacing={2}>
-      <Stack className={styles.header} direction="row" justifyContent="space-between" alignItems="center">
-        <Stack direction="row" spacing={2} alignItems="center">
-          <Typography variant="h5">Active Sessions</Typography>
-          <Button onClick={() => setExpanded(!expanded)} size="small" variant="outlined">
-            {expanded ? 'Collapse' : 'Expand'}
-          </Button>
+    <>
+      <div className={styles.section}>
+        <Stack className={styles.header} direction="row" justifyContent="space-between" alignItems="center">
+          <Stack className={styles.titleContainer} direction="row" spacing={2} alignItems="center">
+            <Typography className={styles.title} variant="h5">
+              Active Sessions
+            </Typography>
+            <Button
+              className={styles.newSessionButton}
+              onClick={handleNewSession}
+              startIcon={<Add />}
+              variant="contained"
+            >
+              New Session
+            </Button>
+          </Stack>
+          <IconButton
+            aria-label={expanded ? 'Collapse' : 'Expand'}
+            className={styles.expandButton}
+            onClick={() => setExpanded(!expanded)}
+            size="small"
+            style={{ color: 'var(--theme-active-contrast)' }}
+          >
+            {expanded ? <Remove /> : <Add />}
+          </IconButton>
         </Stack>
-        <Button onClick={handleNewSession} variant="contained">
-          New Session
-        </Button>
-      </Stack>
 
-      {expanded && <SessionList sessions={sessions} />}
-    </Stack>
+        {expanded && (
+          <div className={styles.content}>
+            <SessionList sessions={sessions} />
+          </div>
+        )}
+      </div>
+      <NewSessionDialog
+        onClose={handleDialogClose}
+        onSessionCreated={handleSessionCreated}
+        open={dialogOpen}
+      />
+    </>
   );
 }
 

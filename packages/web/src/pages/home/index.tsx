@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { Container, Stack, Typography } from '../../ui-library';
 import ActiveSessions from '../../components/active-sessions';
 import PastSessions from '../../components/past-sessions';
+import SessionBanner from '../../components/session-banner';
 import SessionFilters from '../../components/session-filters';
 import { useSessions } from '../../hooks';
 import * as styles from './index.css';
@@ -44,6 +45,8 @@ function Home() {
     <Container className={styles.container} maxWidth="lg">
       <Stack spacing={3}>
         <Typography variant="h4">Session Reviews</Typography>
+
+        <SessionBanner />
 
         <SessionFilters />
 

@@ -4,39 +4,52 @@ export const root = style({
   width: '100%',
 });
 
-export const content = style({
-  padding: '1.5rem', // 24px
+export const header = style({
+  alignItems: 'center',
+  display: 'flex',
+  justifyContent: 'space-between',
 });
 
-export const header = style({
-  marginBottom: '1rem', // 16px
+export const title = style({
+  fontWeight: 600,
 });
 
 export const details = style({
-  marginBottom: '1rem', // 16px
+  alignItems: 'center',
+  display: 'flex',
+  flexWrap: 'wrap',
+  gap: '1rem',
 });
 
 export const detailItem = style({
   alignItems: 'center',
   display: 'flex',
-  gap: '0.5rem', // 8px
-  selectors: {
-    '& svg': {
-      fontSize: '1rem', // 16px
-    },
-  },
 });
 
 export const icon = style({
-  fontSize: '1rem', // 16px
+  fontSize: '1rem',
+  height: '1rem',
+  width: '1rem',
+});
+
+export const summarySection = style({
+  flex: 1,
+  minHeight: '3rem',
 });
 
 export const summary = style({
   display: '-webkit-box',
-  marginTop: '0.5rem', // 8px
   overflow: 'hidden',
   WebkitBoxOrient: 'vertical',
-  WebkitLineClamp: 3,
+  WebkitLineClamp: 2,
   wordBreak: 'break-word',
+});
+
+export const summaryPlaceholder = style({
+  minHeight: '3rem',
+});
+
+export const actionText = style({
+  fontWeight: 500,
 });
 

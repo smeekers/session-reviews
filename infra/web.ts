@@ -1,3 +1,5 @@
+import { secret } from './secrets';
+
 // Web frontend - runs Vite dev server locally during sst dev
 // Accessible at http://localhost:3000 (configured in vite.config.ts)
 export const web = new sst.x.DevCommand('SessionReviewsWeb', {
@@ -5,7 +7,11 @@ export const web = new sst.x.DevCommand('SessionReviewsWeb', {
     autostart: true,
     command: 'pnpm dev',
     directory: 'packages/web',
+    env: {
+      VITE_LIVEBLOCKS_PUBLIC_KEY: secret.LiveblocksPublicKey.value,
+    },
   },
+  link: [secret.LiveblocksPublicKey],
 });
 
 // Note: For production deployment, add a StaticSite here if needed

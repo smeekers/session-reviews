@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Button, Stack, Typography } from '../../ui-library';
+import { Add, Remove } from '@mui/icons-material';
+import { IconButton, Stack, Typography } from '../../ui-library';
 import SessionList from '../session-list';
 import type { Session } from '../../types';
 import * as styles from './index.css';
@@ -12,16 +13,28 @@ function PastSessions({ sessions }: PastSessionsProps) {
   const [expanded, setExpanded] = useState(true);
 
   return (
-    <Stack spacing={2}>
+    <div className={styles.section}>
       <Stack className={styles.header} direction="row" justifyContent="space-between" alignItems="center">
-        <Typography variant="h5">Past Sessions</Typography>
-        <Button onClick={() => setExpanded(!expanded)} size="small" variant="outlined">
-          {expanded ? 'Collapse' : 'Expand'}
-        </Button>
+        <Typography className={styles.title} variant="h5">
+          Past Sessions
+        </Typography>
+        <IconButton
+          aria-label={expanded ? 'Collapse' : 'Expand'}
+          className={styles.expandButton}
+          onClick={() => setExpanded(!expanded)}
+          size="small"
+          style={{ color: 'var(--theme-past-contrast)' }}
+        >
+          {expanded ? <Remove /> : <Add />}
+        </IconButton>
       </Stack>
 
-      {expanded && <SessionList sessions={sessions} />}
-    </Stack>
+      {expanded && (
+        <div className={styles.content}>
+          <SessionList sessions={sessions} />
+        </div>
+      )}
+    </div>
   );
 }
 

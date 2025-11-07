@@ -10,26 +10,49 @@ interface SessionCardProps {
   session: Session;
 }
 
+function getDurationText(session: Session): string {
+  if (session.status === 'ready') {
+    return 'Not started';
+  }
+
+  if (session.endTime && session.startTime) {
+    return formatDistanceStrict(new Date(session.startTime), new Date(session.endTime), {
+      unit: 'minute',
+    });
+  }
+
+  return 'In progress';
+}
+
+function getActionText(status: Session['status']): string {
+  const actionTexts: Record<Session['status'], string> = {
+    'ready': 'Start Session',
+    'in-progress': 'Join Session',
+    'processing': 'View Whiteboard',
+    'completed': 'Review Now',
+    'reviewed': 'Review Again',
+  };
+
+  return actionTexts[status];
+}
+
 function SessionCard({ session }: SessionCardProps) {
   const navigate = useNavigate();
 
-  const startDate = new Date(session.startTime);
+  const startDate = session.startTime ? new Date(session.startTime) : new Date(session.createdAt);
   const formattedDate = format(startDate, 'MMM dd, yyyy');
   const formattedTime = format(startDate, 'h:mmaaa');
 
-  const durationText = session.endTime
-    ? formatDistanceStrict(startDate, new Date(session.endTime), {
-        unit: 'minute',
-      })
-    : 'In progress';
+  const durationText = getDurationText(session);
+  const actionText = getActionText(session.status);
 
   function handleClick() {
     if (session.status === 'ready') {
       navigate(ROUTES.LIVE_SESSION(session.uid));
-    } else if (session.status === 'in-progress') {
+    } else if (session.status === 'in-progress' || session.status === 'processing') {
       navigate(ROUTES.WHITEBOARD(session.uid));
     } else {
-      // All past sessions: processing, completed, reviewed
+      // All past sessions: completed, reviewed
       navigate(ROUTES.SESSION_DETAILS(session.uid));
     }
   }
@@ -50,36 +73,46 @@ function SessionCard({ session }: SessionCardProps) {
         role="link"
         tabIndex={0}
       >
-        <UiCardContent className={styles.content}>
-          <Stack className={styles.header} direction="row" spacing={1} justifyContent="space-between">
-            <Stack direction="row" spacing={1}>
-              <Chip
-                color={statusColors[session.status]}
-                label={statusLabels[session.status]}
-                size="small"
-              />
-            </Stack>
+        <UiCardContent>
+          <Stack className={styles.header} direction="row" justifyContent="space-between">
+            <Chip
+              color={statusColors[session.status]}
+              label={statusLabels[session.status]}
+              size="small"
+            />
             {session.name && (
-              <Typography variant="h6">{session.name}</Typography>
+              <Typography className={styles.title} variant="h6">
+                {session.name}
+              </Typography>
             )}
           </Stack>
 
           <Stack className={styles.details} direction="row" spacing={2}>
-            <Typography className={styles.detailItem} variant="body2">
+            <Stack className={styles.detailItem} direction="row" spacing={0.5}>
               <CalendarToday className={styles.icon} />
-              {formattedDate} • {formattedTime}
-            </Typography>
-            <Typography className={styles.detailItem} variant="body2">
+              <Typography variant="body2">
+                {formattedDate} • {formattedTime}
+              </Typography>
+            </Stack>
+            <Stack className={styles.detailItem} direction="row" spacing={0.5}>
               <AccessTime className={styles.icon} />
-              {durationText}
-            </Typography>
+              <Typography variant="body2">{durationText}</Typography>
+            </Stack>
           </Stack>
 
-          {session.aiSummary && session.status !== 'in-progress' && session.status !== 'processing' ? (
-            <Typography className={styles.summary} variant="body2" color="text.secondary">
-              {session.aiSummary}
-            </Typography>
-          ) : null}
+          <div className={styles.summarySection}>
+            {session.aiSummary && session.status !== 'in-progress' && session.status !== 'processing' ? (
+              <Typography className={styles.summary} variant="body2" color="text.secondary">
+                {session.aiSummary}
+              </Typography>
+            ) : (
+              <div className={styles.summaryPlaceholder} />
+            )}
+          </div>
+
+          <Typography className={styles.actionText} variant="body2" color="primary">
+            {actionText} →
+          </Typography>
         </UiCardContent>
       </UiCardActionArea>
     </UiCard>
@@ -87,4 +120,3 @@ function SessionCard({ session }: SessionCardProps) {
 }
 
 export default SessionCard;
-

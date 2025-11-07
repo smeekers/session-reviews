@@ -17,6 +17,14 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
+    "LiveblocksPublicKey": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "LiveblocksSecretKey": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
   }
 }
 /// <reference path="sst-env.d.ts" />
