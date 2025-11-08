@@ -1,3 +1,4 @@
+import '@excalidraw/excalidraw/index.css';
 import { useEffect, useRef, useState } from 'react';
 import { Excalidraw } from '@excalidraw/excalidraw';
 import type { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/dist/types/types';
@@ -5,7 +6,7 @@ import { createClient, type Room } from '@liveblocks/client';
 import { LiveblocksYjsProvider } from '@liveblocks/yjs';
 import * as Y from 'yjs';
 import { UndoManager } from 'yjs';
-import { ExcalidrawBinding } from 'y-excalidraw';
+import { ExcalidrawBinding, yjsToExcalidraw } from 'y-excalidraw';
 import * as styles from './index.css';
 
 interface WhiteboardProps {
@@ -13,38 +14,27 @@ interface WhiteboardProps {
   className?: string;
 }
 
-// Initialize Liveblocks client once (using public key from environment)
-// For unauthenticated access, we use the public API key
-const publicApiKey = import.meta.env.VITE_LIVEBLOCKS_PUBLIC_KEY;
-
-if (!publicApiKey || !publicApiKey.startsWith('pk_')) {
-  console.error(
-    'Liveblocks public key is missing or invalid. Please set VITE_LIVEBLOCKS_PUBLIC_KEY environment variable with a key starting with "pk_"'
-  );
-}
-
-const client = publicApiKey && publicApiKey.startsWith('pk_')
-  ? createClient({
-      publicApiKey,
-    })
-  : null;
+const client = createClient({
+  publicApiKey: import.meta.env.VITE_LIVEBLOCKS_PUBLIC_KEY,
+});
 
 function Whiteboard({ roomId, className }: WhiteboardProps) {
-  const excalidrawAPIRef = useRef<ExcalidrawImperativeAPI | null>(null);
+  const [excalidrawAPI, setExcalidrawAPI] = useState<ExcalidrawImperativeAPI | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [initialElements, setInitialElements] = useState<readonly unknown[]>([]);
+
   const excalidrawRef = useRef<HTMLDivElement>(null);
   const yDocRef = useRef<Y.Doc>(new Y.Doc());
   const providerRef = useRef<LiveblocksYjsProvider | null>(null);
   const roomRef = useRef<Room | null>(null);
   const leaveRef = useRef<(() => void) | null>(null);
   const bindingRef = useRef<ExcalidrawBinding | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (!roomId || !client) {
       return;
     }
 
-    // Enter the room (will be created automatically if it doesn't exist)
     const { room, leave } = client.enterRoom(roomId, {
       initialPresence: {},
       initialStorage: {},
@@ -53,16 +43,18 @@ function Whiteboard({ roomId, className }: WhiteboardProps) {
     roomRef.current = room;
     leaveRef.current = leave;
 
-    // Create Yjs provider for Liveblocks
     const yjsProvider = new LiveblocksYjsProvider(room, yDocRef.current);
     providerRef.current = yjsProvider;
 
-    // Wait for sync before showing the whiteboard
-    yjsProvider.on('sync', () => {
-      setIsLoading(false);
+    yjsProvider.once('sync', (synced: boolean) => {
+      if (synced) {
+        const yElements = yDocRef.current.getArray('elements');
+        const elements = yjsToExcalidraw(yElements);
+        setInitialElements(elements);
+        setIsLoading(false);
+      }
     });
 
-    // Cleanup on unmount
     return () => {
       if (providerRef.current) {
         providerRef.current.destroy();
@@ -77,7 +69,7 @@ function Whiteboard({ roomId, className }: WhiteboardProps) {
   }, [roomId]);
 
   useEffect(() => {
-    if (!excalidrawAPIRef.current || !yDocRef.current || !providerRef.current || isLoading) {
+    if (!excalidrawAPI || !yDocRef.current || !providerRef.current || isLoading) {
       return;
     }
 
@@ -90,7 +82,26 @@ function Whiteboard({ roomId, className }: WhiteboardProps) {
       return;
     }
 
-    // Create UndoManager for collaborative undo/redo
+    const userColors = [
+      { color: '#30bced', light: '#30bced33' },
+      { color: '#6eeb83', light: '#6eeb8333' },
+      { color: '#ffbc42', light: '#ffbc4233' },
+      { color: '#ecd444', light: '#ecd44433' },
+      { color: '#ee6352', light: '#ee635233' },
+      { color: '#9ac2c9', light: '#9ac2c933' },
+      { color: '#8acb88', light: '#8acb8833' },
+      { color: '#1be7ff', light: '#1be7ff33' },
+    ];
+    const userColor = userColors[Math.floor(Math.random() * userColors.length)];
+
+    awareness.setLocalStateField('user', {
+      name: 'User',
+      color: userColor.color,
+      colorLight: userColor.light,
+    });
+
+    (awareness as any).clientID = (awareness as any).doc.clientID;
+
     const undoManager = new UndoManager(yElements, {
       trackedOrigins: new Set([]),
       captureTimeout: 500,
@@ -98,11 +109,10 @@ function Whiteboard({ roomId, className }: WhiteboardProps) {
       ignoreRemoteMapChanges: false,
     });
 
-    // Create ExcalidrawBinding to sync Excalidraw with Yjs
     const binding = new ExcalidrawBinding(
       yElements,
       yAssets,
-      excalidrawAPIRef.current,
+      excalidrawAPI,
       awareness,
       {
         excalidrawDom,
@@ -112,7 +122,6 @@ function Whiteboard({ roomId, className }: WhiteboardProps) {
 
     bindingRef.current = binding;
 
-    // Cleanup on unmount
     return () => {
       if (bindingRef.current) {
         bindingRef.current.destroy();
@@ -120,19 +129,7 @@ function Whiteboard({ roomId, className }: WhiteboardProps) {
       }
       undoManager.destroy();
     };
-  }, [isLoading]);
-
-  if (!client) {
-    return (
-      <div className={className}>
-        <div className={styles.loadingContainer}>
-          <div className={styles.loadingText}>
-            Liveblocks is not configured. Please set VITE_LIVEBLOCKS_PUBLIC_KEY environment variable.
-          </div>
-        </div>
-      </div>
-    );
-  }
+  }, [isLoading, excalidrawAPI]);
 
   if (isLoading) {
     return (
@@ -145,14 +142,18 @@ function Whiteboard({ roomId, className }: WhiteboardProps) {
   }
 
   return (
-    <div className={className}>
-      <div className={styles.whiteboardContainer} ref={excalidrawRef}>
+    <div className={className} style={{ height: '100%', width: '100%', display: 'flex' }}>
+      <div
+        className={`${styles.whiteboardContainer} excalidraw-container`}
+        ref={excalidrawRef}
+        style={{ height: '100%', width: '100%' }}
+      >
         <Excalidraw
-          excalidrawAPI={(api) => {
-            excalidrawAPIRef.current = api;
+          excalidrawAPI={setExcalidrawAPI}
+          initialData={{
+            elements: initialElements,
           }}
           onPointerUpdate={(payload) => {
-            // Update presence with cursor position
             if (roomRef.current) {
               roomRef.current.updatePresence({
                 cursor: payload.pointer ? { x: payload.pointer.x, y: payload.pointer.y } : null,

@@ -1,6 +1,7 @@
 import { style } from '@vanilla-extract/css';
 
 export const whiteboardContainer = style({
+  display: 'flex',
   height: '100%',
   minHeight: '400px',
   position: 'relative',

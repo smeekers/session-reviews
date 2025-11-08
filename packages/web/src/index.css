@@ -21,3 +21,41 @@ body {
   min-height: 100vh;
 }
 
+/* Excalidraw CSS isolation - prevent global styles from interfering */
+.excalidraw-container {
+  position: relative;
+  isolation: isolate;
+  font-size: 16px;
+  line-height: 1.5;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Ensure Excalidraw component has proper dimensions */
+.excalidraw-container .excalidraw {
+  height: 100% !important;
+  width: 100% !important;
+  display: flex;
+  position: relative;
+}
+
+/* Ensure canvas wrapper has proper dimensions */
+.excalidraw-container .excalidraw__canvas-wrapper {
+  height: 100% !important;
+  width: 100% !important;
+  position: absolute;
+  inset: 0;
+}
+
+/* Ensure canvas elements have proper dimensions */
+.excalidraw-container .excalidraw__canvas {
+  position: absolute;
+}
+
+/* Reset global box-sizing for Excalidraw elements to prevent conflicts */
+.excalidraw-container .excalidraw * {
+  box-sizing: border-box;
+}
+
