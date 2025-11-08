@@ -55,7 +55,6 @@ function ActiveSessions({ sessions }: ActiveSessionsProps) {
             className={styles.expandButton}
             onClick={() => setExpanded(!expanded)}
             size="small"
-            style={{ color: 'var(--theme-active-contrast)' }}
           >
             {expanded ? <Remove /> : <Add />}
           </IconButton>

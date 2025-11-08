@@ -1,6 +1,6 @@
 import { style } from '@vanilla-extract/css';
 
-export const banner = style({
+const banner = style({
   marginBottom: '1rem',
   selectors: {
     '& .MuiAlert-action': {
@@ -10,3 +10,4 @@ export const banner = style({
   },
 });
 
+export { banner };

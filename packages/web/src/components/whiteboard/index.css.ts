@@ -1,6 +1,6 @@
 import { style } from '@vanilla-extract/css';
 
-export const whiteboardContainer = style({
+const whiteboardContainer = style({
   display: 'flex',
   height: '100%',
   minHeight: '400px',
@@ -8,7 +8,7 @@ export const whiteboardContainer = style({
   width: '100%',
 });
 
-export const loadingContainer = style({
+const loadingContainer = style({
   alignItems: 'center',
   display: 'flex',
   height: '400px',
@@ -16,7 +16,9 @@ export const loadingContainer = style({
   width: '100%',
 });
 
-export const loadingText = style({
+const loadingText = style({
   color: 'var(--theme-text-secondary)',
 });
+
+export { loadingContainer, loadingText, whiteboardContainer };
 

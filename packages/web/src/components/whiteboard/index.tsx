@@ -1,7 +1,7 @@
 import '@excalidraw/excalidraw/index.css';
 import { useEffect, useRef, useState } from 'react';
 import { Excalidraw } from '@excalidraw/excalidraw';
-import type { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/dist/types/types';
+import type { ExcalidrawElement, ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types/types';
 import { createClient, type Room } from '@liveblocks/client';
 import { LiveblocksYjsProvider } from '@liveblocks/yjs';
 import * as Y from 'yjs';
@@ -21,7 +21,7 @@ const client = createClient({
 function Whiteboard({ roomId, className }: WhiteboardProps) {
   const [excalidrawAPI, setExcalidrawAPI] = useState<ExcalidrawImperativeAPI | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [initialElements, setInitialElements] = useState<readonly unknown[]>([]);
+  const [initialElements, setInitialElements] = useState<readonly ExcalidrawElement[]>([]);
 
   const excalidrawRef = useRef<HTMLDivElement>(null);
   const yDocRef = useRef<Y.Doc>(new Y.Doc());

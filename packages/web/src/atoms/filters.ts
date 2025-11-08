@@ -1,7 +1,7 @@
 import { atom } from 'jotai';
 import type { SessionStatus } from '../types';
 
-export type StatusFilter = Record<SessionStatus, boolean>;
+type StatusFilter = Record<SessionStatus, boolean>;
 
 const defaultStatusFilter: StatusFilter = {
   'ready': true,
@@ -11,5 +11,7 @@ const defaultStatusFilter: StatusFilter = {
   'reviewed': true,
 };
 
-export const statusFilterAtom = atom<StatusFilter>(defaultStatusFilter);
+const statusFilterAtom = atom<StatusFilter>(defaultStatusFilter);
 
+export { statusFilterAtom };
+export type { StatusFilter };

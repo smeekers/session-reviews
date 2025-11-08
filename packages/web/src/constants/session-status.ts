@@ -1,6 +1,6 @@
 import type { SessionStatus } from '../types';
 
-export const statusColors: Record<SessionStatus, 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'error'> = {
+const statusColors: Record<SessionStatus, 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'error'> = {
   ready: 'secondary',
   'in-progress': 'primary',
   processing: 'warning',
@@ -8,7 +8,7 @@ export const statusColors: Record<SessionStatus, 'default' | 'primary' | 'second
   reviewed: 'success',
 };
 
-export const statusLabels: Record<SessionStatus, string> = {
+const statusLabels: Record<SessionStatus, string> = {
   ready: 'Ready',
   'in-progress': 'In Progress',
   processing: 'Processing',
@@ -16,7 +16,7 @@ export const statusLabels: Record<SessionStatus, string> = {
   reviewed: 'Reviewed',
 };
 
-export const statusOptions: Array<{ label: string; value: SessionStatus }> = [
+const statusOptions: Array<{ label: string; value: SessionStatus }> = [
   { label: statusLabels.ready, value: 'ready' },
   { label: statusLabels['in-progress'], value: 'in-progress' },
   { label: statusLabels.processing, value: 'processing' },
@@ -24,3 +24,4 @@ export const statusOptions: Array<{ label: string; value: SessionStatus }> = [
   { label: statusLabels.reviewed, value: 'reviewed' },
 ];
 
+export { statusColors, statusLabels, statusOptions };

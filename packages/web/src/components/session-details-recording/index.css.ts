@@ -1,11 +1,11 @@
 import { style } from '@vanilla-extract/css';
 
-export const root = style({
+const root = style({
   display: 'flex',
   flexDirection: 'column',
 });
 
-export const videoContainer = style({
+const videoContainer = style({
   display: 'flex',
   flexDirection: 'row',
   gap: '1rem',
@@ -17,19 +17,19 @@ export const videoContainer = style({
   },
 });
 
-export const videoWrapper = style({
+const videoWrapper = style({
   flex: 1,
   minHeight: '400px',
   position: 'relative',
   width: '100%',
 });
 
-export const videoPlayer = style({
+const videoPlayer = style({
   height: '100%',
   width: '100%',
 });
 
-export const bookmarksSection = style({
+const bookmarksSection = style({
   display: 'flex',
   flexDirection: 'column',
   gap: '1rem',
@@ -42,11 +42,11 @@ export const bookmarksSection = style({
   },
 });
 
-export const bookmarksHeader = style({
+const bookmarksHeader = style({
   alignItems: 'center',
 });
 
-export const bookmarkItem = style({
+const bookmarkItem = style({
   background: 'none',
   border: '1px solid rgba(0, 0, 0, 0.12)',
   borderRadius: '0.25rem',
@@ -62,3 +62,4 @@ export const bookmarkItem = style({
   },
 });
 
+export { bookmarkItem, bookmarksHeader, bookmarksSection, root, videoContainer, videoPlayer, videoWrapper };

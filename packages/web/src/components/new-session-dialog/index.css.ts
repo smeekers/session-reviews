@@ -1,6 +1,7 @@
 import { style } from '@vanilla-extract/css';
 
-export const content = style({
+const content = style({
   paddingTop: '1rem',
 });
 
+export { content };

@@ -1,10 +1,11 @@
 import { style } from '@vanilla-extract/css';
 
-export const root = style({
-  marginBottom: '2rem', // 32px
+const root = style({
+  marginBottom: '2rem',
 });
 
-export const filter = style({
-  minWidth: '12rem', // 192px
+const filter = style({
+  minWidth: '12rem',
 });
 
+export { filter, root };

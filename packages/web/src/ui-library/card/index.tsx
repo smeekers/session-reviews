@@ -8,9 +8,9 @@ import CardContent from '@mui/material/CardContent';
 import classNames from 'classnames';
 import * as styles from './index.css';
 
-export interface CardProps extends MuiCardProps {}
-export interface CardActionAreaProps extends MuiCardActionAreaProps {}
-export interface CardContentProps extends MuiCardContentProps {}
+interface CardProps extends MuiCardProps {}
+interface CardActionAreaProps extends MuiCardActionAreaProps {}
+interface CardContentProps extends MuiCardContentProps {}
 
 function UiCard({ className, ...props }: CardProps) {
   return <Card className={classNames(styles.root, className)} {...props} />;
@@ -25,4 +25,4 @@ function UiCardContent({ className, ...props }: CardContentProps) {
 }
 
 export { UiCard, UiCardActionArea, UiCardContent };
-
+export type { CardActionAreaProps, CardContentProps, CardProps };

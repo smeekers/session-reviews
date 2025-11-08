@@ -1,11 +1,12 @@
 import { style } from '@vanilla-extract/css';
 
-export const container = style({
-  paddingTop: '2rem', // 32px
-  paddingBottom: '2rem', // 32px
+const container = style({
+  paddingBottom: '2rem',
+  paddingTop: '2rem',
 });
 
-export const header = style({
+const header = style({
   alignItems: 'center',
 });
 
+export { container, header };

@@ -1,11 +1,11 @@
 import { style } from '@vanilla-extract/css';
 
-export const section = style({
+const section = style({
   borderRadius: '0.5rem',
   overflow: 'hidden',
 });
 
-export const header = style({
+const header = style({
   alignItems: 'center',
   backgroundColor: 'var(--theme-active-dark)',
   borderRadius: '0.5rem 0.5rem 0 0',
@@ -14,19 +14,19 @@ export const header = style({
   padding: '1rem 1.5rem',
 });
 
-export const titleContainer = style({
+const titleContainer = style({
   alignItems: 'center',
   display: 'flex',
   gap: '1rem',
 });
 
-export const title = style({
+const title = style({
   color: 'var(--theme-active-contrast)',
   fontSize: '1.125rem',
   fontWeight: 700,
 });
 
-export const newSessionButton = style({
+const newSessionButton = style({
   backgroundColor: 'var(--theme-primary-main)',
   color: 'var(--theme-primary-contrast)',
   selectors: {
@@ -36,13 +36,14 @@ export const newSessionButton = style({
   },
 });
 
-export const expandButton = style({
-  // Color handled via IconButton props
+const expandButton = style({
+  color: 'var(--theme-active-contrast)',
 });
 
-export const content = style({
+const content = style({
   backgroundColor: 'var(--theme-active-light)',
   borderRadius: '0 0 0.5rem 0.5rem',
   padding: '1.5rem',
 });
 
+export { content, expandButton, header, newSessionButton, section, title, titleContainer };

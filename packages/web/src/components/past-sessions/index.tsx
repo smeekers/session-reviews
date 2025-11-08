@@ -23,7 +23,6 @@ function PastSessions({ sessions }: PastSessionsProps) {
           className={styles.expandButton}
           onClick={() => setExpanded(!expanded)}
           size="small"
-          style={{ color: 'var(--theme-past-contrast)' }}
         >
           {expanded ? <Remove /> : <Add />}
         </IconButton>

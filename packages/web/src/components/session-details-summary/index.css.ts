@@ -1,12 +1,13 @@
 import { style } from '@vanilla-extract/css';
 
-export const root = style({
+const root = style({
   display: 'flex',
   flexDirection: 'column',
 });
 
-export const overviewHeading = style({
+const overviewHeading = style({
   fontWeight: 600,
   marginBottom: '0.5rem',
 });
 
+export { overviewHeading, root };
