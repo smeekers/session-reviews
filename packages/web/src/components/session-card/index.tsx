@@ -101,9 +101,9 @@ function SessionCard({ session }: SessionCardProps) {
           </Stack>
 
           <div className={styles.summarySection}>
-            {session.aiSummary && session.status !== 'in-progress' && session.status !== 'processing' ? (
+            {session.aiSummary && session.aiSummary.length > 0 && session.status !== 'in-progress' && session.status !== 'processing' ? (
               <Typography className={styles.summary} variant="body2" color="text.secondary">
-                {session.aiSummary}
+                {session.aiSummary[0]?.content || ''}
               </Typography>
             ) : (
               <div className={styles.summaryPlaceholder} />

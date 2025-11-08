@@ -9,14 +9,15 @@ import SessionDetailsAISuggestions from '../../components/session-details-ai-sug
 import SessionDetailsRecording from '../../components/session-details-recording';
 import SessionDetailsWhiteboard from '../../components/session-details-whiteboard';
 import { ROUTES } from '../../constants';
-import { useSession, useUpdateAIFeedback, useUpdateSessionName } from '../../hooks';
+import { useSession, useUpdateAIFeedback, useUpdateSessionName, useUpdateSuggestionStatus } from '../../hooks';
 import * as styles from './index.css';
 
 function SessionDetails() {
   const { sessionUid } = useParams<{ sessionUid: string }>();
   const navigate = useNavigate();
   const { session, loading, error } = useSession(sessionUid || '');
-  const { updateSummaryFeedback, updateSuggestionFeedback } = useUpdateAIFeedback(sessionUid || '');
+  const { updateSummaryFeedback, updateSuggestionsFeedback } = useUpdateAIFeedback(sessionUid || '');
+  const { updateSuggestionStatus } = useUpdateSuggestionStatus(sessionUid || '');
   const { updateSessionName } = useUpdateSessionName(sessionUid || '');
 
   function handleBackClick() {
@@ -31,11 +32,19 @@ function SessionDetails() {
     }
   }
 
-  async function handleSuggestionFeedbackChange(suggestionId: string, feedback: 0 | 1) {
+  async function handleSuggestionStatusChange(suggestionId: string, status: 'done' | 'dismissed') {
     try {
-      await updateSuggestionFeedback({ suggestionId, feedback });
+      await updateSuggestionStatus({ suggestionId, status });
     } catch (err) {
-      console.error('Failed to update suggestion feedback:', err);
+      console.error('Failed to update suggestion status:', err);
+    }
+  }
+
+  async function handleSuggestionsFeedbackChange(feedback: 0 | 1) {
+    try {
+      await updateSuggestionsFeedback(feedback);
+    } catch (err) {
+      console.error('Failed to update suggestions feedback:', err);
     }
   }
 
@@ -109,10 +118,12 @@ function SessionDetails() {
           onFeedbackChange={handleSummaryFeedbackChange}
         />
 
-        <SessionDetailsAISuggestions
-          aiSuggestions={session.aiSuggestions}
-          onSuggestionFeedbackChange={handleSuggestionFeedbackChange}
-        />
+          <SessionDetailsAISuggestions
+            aiSuggestions={session.aiSuggestions}
+            aiSuggestionsFeedback={session.aiSuggestionsFeedback}
+            onFeedbackChange={handleSuggestionsFeedbackChange}
+            onSuggestionStatusChange={handleSuggestionStatusChange}
+          />
 
         <SessionDetailsRecording
           bookmarks={session.bookmarks}

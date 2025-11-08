@@ -9,12 +9,20 @@ const createSessionSchema = z.object({
   name: z.string().optional(),
 });
 
+const aiSummaryComponentSchema = z.object({
+  component_type: z.string(),
+  component_order: z.number(),
+  content: z.string(),
+  content_details: z.unknown().optional(),
+});
+
 const updateSessionSchema = z.object({
   name: z.string().optional(),
   videoUrl: z.string().url().optional(),
   transcript: z.string().optional(),
-  aiSummary: z.string().optional(),
+  aiSummary: z.array(aiSummaryComponentSchema).optional(),
   aiSummaryFeedback: z.union([z.literal(0), z.literal(1)]).optional(),
+  aiSuggestionsFeedback: z.union([z.literal(0), z.literal(1)]).optional(),
   status: z.enum(['ready', 'in-progress', 'processing', 'completed', 'reviewed']).optional(),
   startTime: z.string().optional(),
   endTime: z.string().optional(),
@@ -33,7 +41,7 @@ const updateSessionSchema = z.object({
       z.object({
         id: z.string(),
         content: z.string(),
-        feedback: z.union([z.literal(0), z.literal(1)]).optional(),
+        status: z.enum(['pending', 'done', 'dismissed']),
         createdAt: z.string(),
       })
     )
@@ -223,19 +231,42 @@ sessionsRouter.put('/:uid/ai-summary-feedback', async (req, res) => {
   }
 });
 
-// PUT /api/sessions/:uid/ai-suggestions/:suggestionId/feedback - Update AI suggestion feedback
-sessionsRouter.put('/:uid/ai-suggestions/:suggestionId/feedback', async (req, res) => {
+// PUT /api/sessions/:uid/ai-suggestions/:suggestionId/status - Update AI suggestion status
+const updateSuggestionStatusSchema = z.object({
+  status: z.enum(['pending', 'done', 'dismissed']),
+});
+
+sessionsRouter.put('/:uid/ai-suggestions/:suggestionId/status', async (req, res) => {
   try {
-    const data = updateAIFeedbackSchema.parse(req.body);
-    const suggestion = await store.updateAISuggestionFeedback(
+    const data = updateSuggestionStatusSchema.parse(req.body);
+    const suggestion = await store.updateAISuggestionStatus(
       req.params.uid,
       req.params.suggestionId,
-      data.feedback
+      data.status
     );
     if (!suggestion) {
       return res.status(404).json({ error: 'Suggestion not found' });
     }
     res.json(suggestion);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: error.errors });
+    }
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// PUT /api/sessions/:uid/ai-suggestions-feedback - Update AI suggestions list feedback
+sessionsRouter.put('/:uid/ai-suggestions-feedback', async (req, res) => {
+  try {
+    const data = updateAIFeedbackSchema.parse(req.body);
+    const session = await store.updateSession(req.params.uid, {
+      aiSuggestionsFeedback: data.feedback,
+    });
+    if (!session) {
+      return res.status(404).json({ error: 'Session not found' });
+    }
+    res.json(session);
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: error.errors });

@@ -7,11 +7,20 @@ interface Bookmark {
   createdAt: string;
 }
 
+type AISuggestionStatus = 'pending' | 'done' | 'dismissed';
+
 interface AISuggestion {
   id: string;
   content: string;
-  feedback?: 0 | 1;
+  status: AISuggestionStatus;
   createdAt: string;
+}
+
+interface AISummaryComponent {
+  component_type: string;
+  component_order: number;
+  content: string;
+  content_details?: unknown;
 }
 
 interface Session {
@@ -19,9 +28,10 @@ interface Session {
   name?: string;
   videoUrl?: string;
   transcript?: string;
-  aiSummary?: string;
+  aiSummary?: AISummaryComponent[];
   aiSummaryFeedback?: 0 | 1;
   aiSuggestions?: AISuggestion[];
+  aiSuggestionsFeedback?: 0 | 1;
   liveblocksRoom: string;
   status: SessionStatus;
   bookmarks?: Bookmark[];
@@ -31,4 +41,4 @@ interface Session {
   updatedAt: string;
 }
 
-export type { AISuggestion, Bookmark, Session, SessionStatus };
+export type { AISuggestion, AISuggestionStatus, AISummaryComponent, Bookmark, Session, SessionStatus };

@@ -5,9 +5,9 @@ const root = style({
   flexDirection: 'column',
 });
 
-const overviewHeading = style({
+const componentHeading = style({
   fontWeight: 600,
   marginBottom: '0.5rem',
 });
 
-export { overviewHeading, root };
+export { componentHeading, root };

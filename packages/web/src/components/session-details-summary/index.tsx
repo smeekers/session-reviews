@@ -1,11 +1,22 @@
 import { Stack, Typography, UiCard, UiCardContent } from '../../ui-library';
 import AIFeedbackControls from '../ai-feedback-controls';
+import type { AISummaryComponent } from '../../types';
 import * as styles from './index.css';
 
 interface SessionDetailsSummaryProps {
-  aiSummary?: string;
+  aiSummary?: AISummaryComponent[];
   aiSummaryFeedback?: 0 | 1;
   onFeedbackChange?: (feedback: 0 | 1) => void;
+}
+
+function getComponentTitle(componentType: string): string {
+  const titles: Record<string, string> = {
+    overview: 'Overview',
+    key_points: 'Key Points',
+    feedback: 'Feedback',
+    summary: 'Summary',
+  };
+  return titles[componentType] || componentType;
 }
 
 function SessionDetailsSummary({
@@ -13,9 +24,11 @@ function SessionDetailsSummary({
   aiSummaryFeedback,
   onFeedbackChange,
 }: SessionDetailsSummaryProps) {
-  if (!aiSummary) {
+  if (!aiSummary || aiSummary.length === 0) {
     return null;
   }
+
+  const sortedComponents = [...aiSummary].sort((a, b) => a.component_order - b.component_order);
 
   return (
     <Stack className={styles.root} spacing={2}>
@@ -28,13 +41,19 @@ function SessionDetailsSummary({
 
       <UiCard>
         <UiCardContent>
-          <Stack spacing={2}>
-            <div>
-              <Typography className={styles.overviewHeading} variant="subtitle2">
-                Overview
-              </Typography>
-              <Typography variant="body2">{aiSummary}</Typography>
-            </div>
+          <Stack spacing={3}>
+            {sortedComponents.map((component, index) => (
+              <div key={`${component.component_type}-${index}`}>
+                {sortedComponents.length > 1 && (
+                  <Typography className={styles.componentHeading} variant="subtitle2">
+                    {getComponentTitle(component.component_type)}
+                  </Typography>
+                )}
+                <Typography variant="body2" style={{ whiteSpace: 'pre-line' }}>
+                  {component.content}
+                </Typography>
+              </div>
+            ))}
 
             {onFeedbackChange && (
               <AIFeedbackControls
@@ -50,4 +69,3 @@ function SessionDetailsSummary({
 }
 
 export default SessionDetailsSummary;
-

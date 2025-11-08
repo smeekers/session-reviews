@@ -1,6 +1,8 @@
 // Mock AI content generators for demo/POC
 // These will be replaced with actual OpenAI calls later
 
+import type { AISummaryComponent, AISuggestion } from '../data/memory-store';
+
 const mockSummaries = [
   'This session covered advanced React patterns including custom hooks, context optimization, and performance best practices. The discussion included hands-on examples of memoization strategies and when to use useMemo vs useCallback.',
   'The session focused on TypeScript best practices, exploring advanced type system features like conditional types, mapped types, and template literal types. Participants worked through complex type challenges and learned practical patterns for type-safe code.',
@@ -21,19 +23,37 @@ const mockSuggestions = [
 ];
 
 /**
- * Generate a mock AI summary for a session
+ * Generate a mock structured AI summary for a session
  */
-export function generateMockSummary(): string {
-  return mockSummaries[Math.floor(Math.random() * mockSummaries.length)];
+export function generateMockSummary(): AISummaryComponent[] {
+  const baseSummary = mockSummaries[Math.floor(Math.random() * mockSummaries.length)];
+  
+  return [
+    {
+      component_type: 'overview',
+      component_order: 0,
+      content: baseSummary,
+    },
+    {
+      component_type: 'key_points',
+      component_order: 1,
+      content: 'Key highlights from this session:\n- Explored advanced patterns and best practices\n- Discussed performance optimization strategies\n- Reviewed practical examples and use cases\n- Covered testing and maintainability considerations',
+    },
+    {
+      component_type: 'feedback',
+      component_order: 2,
+      content: 'The session demonstrated strong technical understanding and effective problem-solving approaches. Clear communication and thoughtful questions contributed to a productive discussion.',
+    },
+  ];
 }
 
 /**
  * Generate mock AI suggestions for a session
  * @param count - Number of suggestions to generate (default: 3-5)
  */
-export function generateMockSuggestions(count?: number): string[] {
+export function generateMockSuggestions(count?: number): Omit<AISuggestion, 'id' | 'createdAt'>[] {
   const numSuggestions = count || Math.floor(Math.random() * 3) + 3;
-  const suggestions: string[] = [];
+  const suggestions: Omit<AISuggestion, 'id' | 'createdAt'>[] = [];
   const usedIndices = new Set<number>();
 
   for (let i = 0; i < numSuggestions && i < mockSuggestions.length; i++) {
@@ -42,7 +62,10 @@ export function generateMockSuggestions(count?: number): string[] {
       index = Math.floor(Math.random() * mockSuggestions.length);
     } while (usedIndices.has(index));
     usedIndices.add(index);
-    suggestions.push(mockSuggestions[index]);
+    suggestions.push({
+      content: mockSuggestions[index],
+      status: 'pending',
+    });
   }
 
   return suggestions;
@@ -63,4 +86,3 @@ export function generateMockTranscript(): string {
 
   return paragraphs.join('\n\n');
 }
-

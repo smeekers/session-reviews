@@ -3,6 +3,8 @@
 
 export type SessionStatus = 'ready' | 'in-progress' | 'processing' | 'completed' | 'reviewed';
 
+export type AISuggestionStatus = 'pending' | 'done' | 'dismissed';
+
 export interface Bookmark {
   id: string;
   timestamp: number;
@@ -13,8 +15,15 @@ export interface Bookmark {
 export interface AISuggestion {
   id: string;
   content: string;
-  feedback?: 0 | 1; // 0 = thumbs-down, 1 = thumbs-up, undefined/null = no feedback
+  status: AISuggestionStatus;
   createdAt: string;
+}
+
+export interface AISummaryComponent {
+  component_type: string;
+  component_order: number;
+  content: string;
+  content_details?: unknown;
 }
 
 export interface Session {
@@ -22,9 +31,10 @@ export interface Session {
   name?: string;
   videoUrl?: string;
   transcript?: string;
-  aiSummary?: string;
-  aiSummaryFeedback?: 0 | 1; // 0 = thumbs-down, 1 = thumbs-up, undefined/null = no feedback
+  aiSummary?: AISummaryComponent[];
+  aiSummaryFeedback?: 0 | 1;
   aiSuggestions?: AISuggestion[];
+  aiSuggestionsFeedback?: 0 | 1;
   liveblocksRoom: string;
   status: SessionStatus;
   bookmarks?: Bookmark[];
@@ -37,7 +47,6 @@ export interface Session {
 export class MemoryStore {
   sessions: Map<string, Session> = new Map();
 
-  // Sessions - all methods are async to match DynamoStore interface
   async getSession(uid: string): Promise<Session | undefined> {
     return this.sessions.get(uid);
   }
@@ -79,7 +88,6 @@ export class MemoryStore {
     return this.sessions.delete(uid);
   }
 
-  // Bookmarks
   async addBookmark(
     sessionUid: string,
     bookmark: Omit<Bookmark, 'id' | 'createdAt'>
@@ -142,7 +150,6 @@ export class MemoryStore {
     return true;
   }
 
-  // AI Suggestions
   async addAISuggestion(
     sessionUid: string,
     suggestion: Omit<AISuggestion, 'id' | 'createdAt'>
@@ -165,10 +172,10 @@ export class MemoryStore {
     return newSuggestion;
   }
 
-  async updateAISuggestionFeedback(
+  async updateAISuggestionStatus(
     sessionUid: string,
     suggestionId: string,
-    feedback: 0 | 1
+    status: AISuggestionStatus
   ): Promise<AISuggestion | undefined> {
     const session = await this.getSession(sessionUid);
     if (!session) {
@@ -181,11 +188,10 @@ export class MemoryStore {
       return undefined;
     }
 
-    const updated = { ...suggestions[suggestionIndex], feedback };
+    const updated = { ...suggestions[suggestionIndex], status };
     suggestions[suggestionIndex] = updated;
 
     await this.updateSession(sessionUid, { aiSuggestions: suggestions });
     return updated;
   }
 }
-

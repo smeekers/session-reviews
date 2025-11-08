@@ -4,4 +4,5 @@ export { default as useSession } from './use-session';
 export { default as useSessions } from './use-sessions';
 export { default as useUpdateAIFeedback } from './use-update-ai-feedback';
 export { default as useUpdateSessionName } from './use-update-session-name';
+export { default as useUpdateSuggestionStatus } from './use-update-suggestion-status';
 

@@ -4,7 +4,7 @@
 
 import { GetCommand, PutCommand, DeleteCommand, ScanCommand } from '@aws-sdk/lib-dynamodb';
 import { dynamoClient, getSessionsTableName } from '../lib/aws';
-import type { Session, Bookmark, AISuggestion } from './memory-store';
+import type { AISuggestion, Bookmark, Session } from './memory-store';
 
 class DynamoStore {
   private tableName = getSessionsTableName();
@@ -176,10 +176,10 @@ class DynamoStore {
     return newSuggestion;
   }
 
-  async updateAISuggestionFeedback(
+  async updateAISuggestionStatus(
     sessionUid: string,
     suggestionId: string,
-    feedback: 0 | 1
+    status: AISuggestion['status']
   ): Promise<AISuggestion | undefined> {
     const session = await this.getSession(sessionUid);
     if (!session) {
@@ -192,7 +192,7 @@ class DynamoStore {
       return undefined;
     }
 
-    const updated = { ...suggestions[suggestionIndex], feedback };
+    const updated = { ...suggestions[suggestionIndex], status };
     suggestions[suggestionIndex] = updated;
 
     await this.updateSession(sessionUid, { aiSuggestions: suggestions });
