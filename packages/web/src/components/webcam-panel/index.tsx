@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { FiberManualRecord, Mic, MicOff, Videocam, VideocamOff } from '@mui/icons-material';
+import { WEBCAM_STRINGS } from '../../constants';
 import { IconButton, Paper, Stack, Typography, Chip } from '../../ui-library';
 import AddBookmarkButton from '../add-bookmark-button';
 import * as styles from './index.css';
@@ -63,7 +64,7 @@ function WebcamPanel({ getCurrentTime, isRecording = false, onStreamReady, sessi
         onStreamReadyRef.current?.(stream);
         setError(null);
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Failed to access webcam';
+        const message = err instanceof Error ? err.message : WEBCAM_STRINGS.ERROR_ACCESS;
         setError(message);
         onStreamReadyRef.current?.(null);
       }
@@ -85,7 +86,7 @@ function WebcamPanel({ getCurrentTime, isRecording = false, onStreamReady, sessi
       <Paper className={styles.root}>
         <Stack alignItems="center" className={styles.errorContainer} justifyContent="center" spacing={1}>
           <VideocamOff color="error" />
-          <Typography color="error" variant="body2">
+          <Typography color="error" role="alert" variant="body2">
             {error}
           </Typography>
         </Stack>
@@ -101,22 +102,23 @@ function WebcamPanel({ getCurrentTime, isRecording = false, onStreamReady, sessi
             <Chip
               color="error"
               icon={<FiberManualRecord />}
-              label="Recording"
+              label={WEBCAM_STRINGS.RECORDING}
               size="small"
             />
           )}
         </Stack>
         <Stack direction="row" spacing={0.5}>
-          <IconButton onClick={handleToggleAudio} size="small">
+          <IconButton aria-label={isAudioEnabled ? WEBCAM_STRINGS.MUTE_AUDIO : WEBCAM_STRINGS.UNMUTE_AUDIO} onClick={handleToggleAudio} size="small">
             {isAudioEnabled ? <Mic /> : <MicOff />}
           </IconButton>
-          <IconButton onClick={handleToggleVideo} size="small">
+          <IconButton aria-label={isVideoEnabled ? WEBCAM_STRINGS.TURN_OFF_VIDEO : WEBCAM_STRINGS.TURN_ON_VIDEO} onClick={handleToggleVideo} size="small">
             {isVideoEnabled ? <Videocam /> : <VideocamOff />}
           </IconButton>
         </Stack>
       </Stack>
       <div className={styles.videoContainer}>
         <video
+          aria-label={WEBCAM_STRINGS.WEBCAM_FEED}
           autoPlay
           className={styles.video}
           muted

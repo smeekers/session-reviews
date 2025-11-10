@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useSetAtom } from 'jotai';
+import { COMMON_STRINGS, DIALOG_STRINGS } from '../../constants';
 import * as styles from './index.css';
 import { bannerAtom } from '../../atoms/banner';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField } from '../../ui-library';
@@ -53,17 +54,17 @@ function NewSessionDialog({ open, onClose, onSessionCreated }: NewSessionDialogP
 
   return (
     <Dialog onClose={handleCancel} open={open}>
-      <DialogTitle>New Session</DialogTitle>
+      <DialogTitle>{DIALOG_STRINGS.NEW_SESSION.TITLE}</DialogTitle>
       <DialogContent>
         <Stack className={styles.content} spacing={2}>
           <TextField
             autoFocus
             disabled={false}
             fullWidth
-            label="Session Name (optional)"
+            label={DIALOG_STRINGS.NEW_SESSION.SESSION_NAME_LABEL}
             onChange={(e) => setName(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Enter a name for this session"
+            placeholder={DIALOG_STRINGS.NEW_SESSION.SESSION_NAME_PLACEHOLDER}
             value={name}
             variant="outlined"
           />
@@ -71,10 +72,10 @@ function NewSessionDialog({ open, onClose, onSessionCreated }: NewSessionDialogP
       </DialogContent>
       <DialogActions>
         <Button onClick={handleCancel} variant="outlined">
-          Cancel
+          {COMMON_STRINGS.CANCEL}
         </Button>
         <Button onClick={handleCreate} variant="contained">
-          Create Session
+          {DIALOG_STRINGS.NEW_SESSION.CREATE_BUTTON}
         </Button>
       </DialogActions>
     </Dialog>

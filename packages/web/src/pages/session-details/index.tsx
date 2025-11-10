@@ -1,30 +1,30 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { ChevronRight } from '@mui/icons-material';
+import { COMMON_STRINGS, ROUTES } from '../../constants';
 import { Container, Stack, Typography, Breadcrumbs, Link } from '../../ui-library';
 import Loading from '../../components/loading';
 import SessionDetails from '../../components/session-details';
-import { ROUTES } from '../../constants';
 import { useSession } from '../../hooks';
 import * as styles from './index.css';
 
 function SessionDetailsPage() {
   const { sessionUid } = useParams<{ sessionUid: string }>();
   const navigate = useNavigate();
-  const { session, loading, error } = useSession(sessionUid || '');
+  const { session, isLoading, error } = useSession(sessionUid || '');
 
   function handleBackClick() {
     navigate(ROUTES.HOME);
   }
 
-  if (loading) {
-    return <Loading message="Loading session..." />;
+  if (isLoading) {
+    return <Loading message={COMMON_STRINGS.LOADING_SESSION} />;
   }
 
   if (error || !session) {
     return (
       <Container className={styles.container} maxWidth="lg">
         <Typography color="error">
-          {error ? `Error loading session: ${error.message}` : 'Session not found'}
+          {error ? `${COMMON_STRINGS.ERROR_LOADING_SESSION}: ${error.message}` : COMMON_STRINGS.SESSION_NOT_FOUND}
         </Typography>
       </Container>
     );
@@ -40,10 +40,10 @@ function SessionDetailsPage() {
             underline="hover"
             variant="body2"
           >
-            Sessions
+            {COMMON_STRINGS.SESSIONS}
           </Link>
           <Typography color="text.primary" variant="body2">
-            Session Details
+            {COMMON_STRINGS.SESSION_DETAILS}
           </Typography>
         </Breadcrumbs>
 

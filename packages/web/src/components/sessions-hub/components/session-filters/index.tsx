@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAtom } from 'jotai';
 import { ExpandMore, ExpandLess } from '@mui/icons-material';
+import { COMMON_STRINGS } from '../../../../constants';
 import * as styles from './index.css';
 import { statusFilterAtom } from '../../../../atoms/filters';
 import { statusOptions } from '../../../../constants/session-status';
@@ -38,11 +39,12 @@ function SessionFilters() {
         aria-controls={open ? 'status-filter-menu' : undefined}
         aria-haspopup="true"
         aria-expanded={open ? 'true' : undefined}
+        aria-label={`${COMMON_STRINGS.STATUS} filter${allChecked ? '' : `: ${checkedCount} selected`}`}
         endIcon={open ? <ExpandLess /> : <ExpandMore />}
         onClick={handleClick}
         variant="outlined"
       >
-        Status {allChecked ? '' : `(${checkedCount})`}
+        {COMMON_STRINGS.STATUS} {allChecked ? '' : `(${checkedCount})`}
       </Button>
       <Menu
         anchorEl={anchorEl}
@@ -60,7 +62,11 @@ function SessionFilters() {
             onClick={(e) => handleStatusToggle(option.value, e)}
             onMouseDown={(e) => e.preventDefault()}
           >
-            <Checkbox checked={statusFilter[option.value]} size="small" />
+            <Checkbox
+              aria-label={`${option.label} filter${statusFilter[option.value] ? ' (selected)' : ''}`}
+              checked={statusFilter[option.value]}
+              size="small"
+            />
             <Typography>{option.label}</Typography>
           </MenuItem>
         ))}

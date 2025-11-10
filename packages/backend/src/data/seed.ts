@@ -57,7 +57,9 @@ export async function seedStore(store: MemoryStore): Promise<void> {
       : [];
 
     // Extract suggestions from summary if it exists
-    const aiSummary = endTime && options?.hasSummary ? generateMockSummary() : undefined;
+    // Use session UID as seed offset for deterministic but unique content per session
+    const sessionSeedOffset = parseInt(uid.replace(/\D/g, '')) || 0;
+    const aiSummary = endTime && options?.hasSummary ? generateMockSummary(sessionSeedOffset) : undefined;
     const suggestionsComponent = aiSummary?.find((c) => c.component_type === 'suggestions');
     const aiSuggestions: AISuggestion[] = options?.hasSuggestions && Array.isArray(suggestionsComponent?.content_details)
       ? (suggestionsComponent.content_details as AISuggestion[]).map((suggestion, idx) => ({

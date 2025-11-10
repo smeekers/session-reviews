@@ -1,18 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '../../helpers/api';
 import { invalidateSessionQueries } from '../../helpers/query-client';
-import type { Session, SessionStatus } from '../../types';
-
-interface UpdateSessionRequest {
-  name?: string;
-  status?: SessionStatus;
-  startTime?: string;
-  endTime?: string;
-  videoUrl?: string;
-  transcript?: string;
-  aiSummary?: unknown;
-  aiSuggestions?: unknown;
-}
+import type { Session } from '../../types';
+import type { UpdateSessionRequest } from '../../types/api';
 
 async function updateSession(sessionUid: string, data: UpdateSessionRequest): Promise<Session> {
   return apiFetch<Session>(`/api/sessions/${sessionUid}`, {

@@ -75,25 +75,43 @@ const mockSuggestions: MockSuggestion[] = [
 
 /**
  * Generate a mock structured AI summary for a session
+ * @param sessionSeed - Session number/offset for deterministic selection in test mode
  */
-export function generateMockSummary(): AISummaryComponent[] {
-  const baseSummary = mockSummaries[Math.floor(Math.random() * mockSummaries.length)];
+export function generateMockSummary(sessionSeed: number = 0): AISummaryComponent[] {
+  const isTest = process.env.PLAYWRIGHT_TEST === 'true' || process.env.NODE_ENV === 'test';
   
-  // Generate suggestions (4-8 per session for more variety)
-  const numSuggestions = Math.floor(Math.random() * 5) + 4;
+  // In test mode: use deterministic selection based on sessionSeed
+  // In dev mode: use random selection
+  const selectIndex = (arr: unknown[], offset: number = 0) => {
+    if (isTest) {
+      return (offset + sessionSeed) % arr.length;
+    }
+    return Math.floor(Math.random() * arr.length);
+  };
+  
+  const baseSummary = mockSummaries[selectIndex(mockSummaries)];
+  
+  // Generate suggestions (5 per session in test mode, 4-8 in dev mode)
+  const numSuggestions = isTest ? 5 : Math.floor(Math.random() * 5) + 4;
   const suggestions: AISuggestion[] = [];
-  const usedIndices = new Set<number>();
 
+  const usedIndices = new Set<number>();
   for (let i = 0; i < numSuggestions && i < mockSuggestions.length; i++) {
-    let index;
-    do {
-      index = Math.floor(Math.random() * mockSuggestions.length);
-    } while (usedIndices.has(index));
-    usedIndices.add(index);
+    // In test mode: select suggestions deterministically based on sessionSeed
+    // In dev mode: select randomly, avoiding duplicates
+    let index: number;
+    if (isTest) {
+      index = (sessionSeed * numSuggestions + i) % mockSuggestions.length;
+    } else {
+      do {
+        index = Math.floor(Math.random() * mockSuggestions.length);
+      } while (usedIndices.has(index));
+      usedIndices.add(index);
+    }
     
     const mockSuggestion = mockSuggestions[index];
     suggestions.push({
-      id: `suggestion_${Date.now()}_${i}`,
+      id: `suggestion_${sessionSeed}_${i}`,
       title: mockSuggestion.title,
       content: mockSuggestion.content,
       type: mockSuggestion.type,
@@ -122,8 +140,8 @@ export function generateMockSummary(): AISummaryComponent[] {
     'Engaging discussion with good technical depth. The examples and case studies provided valuable context for the concepts discussed.',
   ];
 
-  const selectedKeyPoints = keyPointsOptions[Math.floor(Math.random() * keyPointsOptions.length)];
-  const selectedFeedback = feedbackOptions[Math.floor(Math.random() * feedbackOptions.length)];
+  const selectedKeyPoints = keyPointsOptions[selectIndex(keyPointsOptions)];
+  const selectedFeedback = feedbackOptions[selectIndex(feedbackOptions)];
 
   return [
     {

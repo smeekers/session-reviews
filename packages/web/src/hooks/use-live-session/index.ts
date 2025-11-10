@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useSetAtom } from 'jotai';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../constants';
@@ -19,56 +19,60 @@ function useLiveSession({ sessionUid }: UseLiveSessionOptions) {
   const { updateSession } = useUpdateSession(sessionUid);
   const { endSession } = useEndSession(sessionUid);
   const streamRef = useRef<MediaStream | null>(null);
-  const { isRecording, startRecording, stopRecording, error: recordingError } = useMockedRecording({
+
+  const handleRecordingError = useCallback((err: Error) => {
+    console.error('Recording error:', err);
+  }, []);
+
+  const handleRecordingStart = useCallback(async () => {
+    await updateSession({
+      status: 'in-progress',
+      startTime: new Date().toISOString(),
+    });
+  }, [updateSession]);
+
+  const handleRecordingStop = useCallback(
+    async (blob: Blob | null) => {
+      if (!blob) {
+        return;
+      }
+
+      setBannerState({
+        type: 'processing',
+        sessionUid,
+        sessionName: session?.name,
+      });
+
+      navigate(ROUTES.HOME);
+
+      try {
+        await endSession(blob);
+
+        // TODO: I either need to add polling or more ideally an event listener as the real process would make this time out
+        setBannerState({
+          type: 'completed',
+          sessionUid,
+          sessionName: session?.name,
+        });
+      } catch (err) {
+        console.error('Failed to end session:', err);
+        setBannerState({ type: 'hidden' });
+      }
+    },
+    [endSession, navigate, session?.name, sessionUid, setBannerState]
+  );
+
+  const { isRecording, startRecording, stopRecording, error } = useMockedRecording({
     onError: handleRecordingError,
     onStart: handleRecordingStart,
     onStop: handleRecordingStop,
   });
 
-  async function handleRecordingStart() {
-    await updateSession({
-      status: 'in-progress',
-      startTime: new Date().toISOString(),
-    });
-  }
-
-  async function handleRecordingStop(blob: Blob | null) {
-    if (!blob) {
-      return;
-    }
-
-    setBannerState({
-      type: 'processing',
-      sessionUid,
-      sessionName: session?.name,
-    });
-
-    navigate(ROUTES.HOME);
-
-    try {
-      await endSession(blob);
-
-      // TODO: I either need to add polling or more ideally an event listener as the real process would make this time out
-      setBannerState({
-        type: 'completed',
-        sessionUid,
-        sessionName: session?.name,
-      });
-    } catch (err) {
-      console.error('Failed to end session:', err);
-      setBannerState({ type: 'hidden' });
-    }
-  }
-
-  function handleRecordingError(err: Error) {
-    console.error('Recording error:', err);
-  }
-
-  function handleStreamReady(stream: MediaStream | null) {
+  const handleStreamReady = useCallback((stream: MediaStream | null) => {
     streamRef.current = stream;
-  }
+  }, []);
 
-  async function handleStartRecording() {
+  const handleStartRecording = useCallback(async () => {
     if (isRecording) {
       return;
     }
@@ -77,9 +81,9 @@ function useLiveSession({ sessionUid }: UseLiveSessionOptions) {
     } catch (err) {
       console.error('Failed to start recording:', err);
     }
-  }
+  }, [isRecording, startRecording]);
 
-  async function handleEndSession() {
+  const handleEndSession = useCallback(async () => {
     if (!isRecording) {
       return;
     }
@@ -88,7 +92,7 @@ function useLiveSession({ sessionUid }: UseLiveSessionOptions) {
     } catch (err) {
       console.error('Failed to stop recording:', err);
     }
-  }
+  }, [isRecording, stopRecording]);
 
   useEffect(() => {
     function handleBeforeUnload() {
@@ -109,10 +113,10 @@ function useLiveSession({ sessionUid }: UseLiveSessionOptions) {
 
   return {
     isRecording,
-    recordingError,
-    handleStartRecording,
-    handleEndSession,
-    handleStreamReady,
+    error,
+    startRecording: handleStartRecording,
+    stopRecording: handleEndSession,
+    onStreamReady: handleStreamReady,
   };
 }
 

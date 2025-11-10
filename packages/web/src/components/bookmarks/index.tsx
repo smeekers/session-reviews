@@ -1,9 +1,10 @@
 import { useState, useMemo } from 'react';
 import { Add } from '@mui/icons-material';
+import { BOOKMARK_STRINGS, COMMON_STRINGS } from '../../constants';
 import { Stack, Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from '../../ui-library';
-import type { VideoPlayerRef } from '../video-player/types';
+import type { VideoPlayerRef } from '../../types/video-player';
 import { useAddBookmark } from '../../hooks';
-import formatTimestamp from '../../helpers/format-timestamp';
+import { formatTimestamp } from '../../helpers/session-time';
 import type { Bookmark } from '../../types';
 import * as styles from './index.css';
 
@@ -33,7 +34,7 @@ function Bookmarks({ bookmarks = [], sessionUid, videoPlayerRef, getCurrentTime,
     } else if (videoPlayerRef?.current) {
       timestamp = Math.floor(videoPlayerRef.current.getCurrentTime());
     }
-    
+
     if (timestamp !== null) {
       setPendingTimestamp(timestamp);
       setDialogOpen(true);
@@ -70,7 +71,7 @@ function Bookmarks({ bookmarks = [], sessionUid, videoPlayerRef, getCurrentTime,
     <>
       <div className={styles.bookmarksSection}>
         <Stack className={styles.bookmarksHeader} direction="row" justifyContent="space-between">
-          <Typography variant="h6">Bookmarks</Typography>
+          <Typography variant="h6">{BOOKMARK_STRINGS.TITLE}</Typography>
           <Button
             className={styles.addButton}
             disabled={disabled}
@@ -79,49 +80,55 @@ function Bookmarks({ bookmarks = [], sessionUid, videoPlayerRef, getCurrentTime,
             startIcon={<Add />}
             variant="contained"
           >
-            Add
+            {BOOKMARK_STRINGS.ADD}
           </Button>
         </Stack>
 
         {bookmarks.length === 0 ? (
           <Typography color="text.secondary" variant="body2">
-            It looks like you haven't added any bookmarks to this video. As you watch, you can add
-            bookmarks to mark important moments or sections you want to return to.
+            {BOOKMARK_STRINGS.EMPTY_STATE_MESSAGE}
           </Typography>
         ) : (
           <Stack spacing={1}>
-            {sortedBookmarks.map((bookmark) => (
-              <button
-                className={styles.bookmarkItem}
-                key={bookmark.id}
-                onClick={() => handleBookmarkClick(bookmark)}
-                type="button"
-              >
-                <Typography variant="body2">
-                  {formatTimestamp(bookmark.timestamp)} {bookmark.note && `- ${bookmark.note}`}
-                </Typography>
-              </button>
-            ))}
+            {sortedBookmarks.map((bookmark) => {
+              const bookmarkLabel = BOOKMARK_STRINGS.JUMP_TO_BOOKMARK(
+                formatTimestamp(bookmark.timestamp),
+                bookmark.note
+              );
+              return (
+                <button
+                  aria-label={bookmarkLabel}
+                  className={styles.bookmarkItem}
+                  key={bookmark.id}
+                  onClick={() => handleBookmarkClick(bookmark)}
+                  type="button"
+                >
+                  <Typography variant="body2">
+                    {formatTimestamp(bookmark.timestamp)} {bookmark.note && `- ${bookmark.note}`}
+                  </Typography>
+                </button>
+              );
+            })}
           </Stack>
         )}
       </div>
 
       <Dialog onClose={handleDialogClose} open={dialogOpen}>
-        <DialogTitle>Add Bookmark</DialogTitle>
+        <DialogTitle>{BOOKMARK_STRINGS.DIALOG_TITLE}</DialogTitle>
         <DialogContent>
           <Stack className={styles.dialogContent} spacing={2}>
             {pendingTimestamp !== null && (
               <Typography color="text.secondary" variant="body2">
-                Timestamp: {formatTimestamp(pendingTimestamp)}
+                {BOOKMARK_STRINGS.TIMESTAMP_LABEL} {formatTimestamp(pendingTimestamp)}
               </Typography>
             )}
             <TextField
               autoFocus
               fullWidth
-              label="Note (optional)"
+              label={BOOKMARK_STRINGS.NOTE_LABEL}
               multiline
               onChange={(e) => setNote(e.target.value)}
-              placeholder="Add a note about this moment..."
+              placeholder={BOOKMARK_STRINGS.NOTE_PLACEHOLDER}
               rows={3}
               value={note}
               variant="outlined"
@@ -130,10 +137,10 @@ function Bookmarks({ bookmarks = [], sessionUid, videoPlayerRef, getCurrentTime,
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDialogClose} variant="outlined">
-            Cancel
+            {COMMON_STRINGS.CANCEL}
           </Button>
           <Button onClick={handleSaveBookmark} variant="contained">
-            Add Bookmark
+            {BOOKMARK_STRINGS.ADD_BOOKMARK}
           </Button>
         </DialogActions>
       </Dialog>

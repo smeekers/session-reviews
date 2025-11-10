@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import { Stack, Typography, Paper } from '../../../../ui-library';
 import VideoPlayer from '../../../../components/video-player';
-import type { VideoPlayerRef } from '../../../../components/video-player/types';
+import type { VideoPlayerRef } from '../../../../types/video-player';
 import Bookmarks from '../../../../components/bookmarks';
 import type { Bookmark } from '../../../../types';
 import * as styles from './index.css';

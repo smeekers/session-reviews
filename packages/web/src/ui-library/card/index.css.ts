@@ -19,8 +19,8 @@ const content = style({
 });
 
 const accentPurple = style({
-  backgroundColor: '#f3e5f5',
-  border: '1px solid #ba68c8',
+  backgroundColor: 'rgba(156, 39, 176, 0.08)',
+  border: '1px solid var(--theme-secondary-main)',
   minHeight: 'auto',
   selectors: {
     '&&': {
@@ -30,8 +30,8 @@ const accentPurple = style({
 });
 
 const accentOrange = style({
-  backgroundColor: '#fff3e0',
-  border: '1px solid #ff9800',
+  backgroundColor: 'rgba(237, 108, 2, 0.08)',
+  border: '1px solid var(--theme-warning-main)',
   minHeight: 'auto',
   selectors: {
     '&&': {
@@ -41,8 +41,8 @@ const accentOrange = style({
 });
 
 const accentBlue = style({
-  backgroundColor: '#e3f2fd',
-  border: '1px solid #42a5f5',
+  backgroundColor: 'rgba(2, 136, 209, 0.08)',
+  border: '1px solid var(--theme-info-main)',
   minHeight: 'auto',
   selectors: {
     '&&': {
@@ -52,8 +52,8 @@ const accentBlue = style({
 });
 
 const accentGreen = style({
-  backgroundColor: '#e8f5e9',
-  border: '1px solid #4caf50',
+  backgroundColor: 'rgba(46, 125, 50, 0.08)',
+  border: '1px solid var(--theme-success-main)',
   minHeight: 'auto',
   selectors: {
     '&&': {
@@ -63,8 +63,8 @@ const accentGreen = style({
 });
 
 const accentRed = style({
-  backgroundColor: '#ffebee',
-  border: '1px solid #ef5350',
+  backgroundColor: 'rgba(211, 47, 47, 0.08)',
+  border: '1px solid var(--theme-error-main)',
   minHeight: 'auto',
   selectors: {
     '&&': {

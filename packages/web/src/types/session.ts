@@ -24,7 +24,7 @@ interface AISummaryComponent {
   component_type: string;
   component_order: number;
   content: string;
-  content_details?: AISuggestion[] | unknown;
+  content_details?: AISuggestion[];
 }
 
 interface Session {

@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Whiteboard from '../whiteboard';
 import WhiteboardControls from '../whiteboard-controls';
 import WebcamPanel from '../webcam-panel';
-import { ROUTES } from '../../constants';
+import { ROUTES, WHITEBOARD_STRINGS, MILLISECONDS_PER_SECOND, SHARE_BUTTON_RESET_DELAY_MS } from '../../constants';
 import useLiveSession from '../../hooks/use-live-session';
 import * as styles from './index.css';
 
@@ -13,22 +13,62 @@ interface LiveSessionProps {
 function LiveSession({ sessionUid }: LiveSessionProps) {
   const {
     isRecording,
-    recordingError,
-    handleStartRecording,
-    handleEndSession,
-    handleStreamReady,
+    error,
+    startRecording,
+    stopRecording,
+    onStreamReady,
   } = useLiveSession({ sessionUid });
   const [recordingStartTime, setRecordingStartTime] = useState<number | null>(null);
-  const [shareButtonText, setShareButtonText] = useState('Share Session');
-  const streamReadyRef = useRef(handleStreamReady);
+  const [shareButtonText, setShareButtonText] = useState<string>(WHITEBOARD_STRINGS.SHARE_SESSION);
+  const streamReadyRef = useRef(onStreamReady);
 
-  useEffect(() => {
-    streamReadyRef.current = handleStreamReady;
-  }, [handleStreamReady]);
+  const getCurrentRecordingTime = useCallback((): number => {
+    if (!recordingStartTime) {
+      return 0;
+    }
+    return Math.floor((Date.now() - recordingStartTime) / MILLISECONDS_PER_SECOND);
+  }, [recordingStartTime]);
 
-  const onStreamReady = useCallback((stream: MediaStream | null) => {
+  const whiteboardUrl = useMemo(
+    () => `${window.location.origin}${ROUTES.WHITEBOARD(sessionUid)}`,
+    [sessionUid]
+  );
+
+  const handleShareSession = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(whiteboardUrl);
+      setShareButtonText(WHITEBOARD_STRINGS.LINK_COPIED);
+      setTimeout(() => {
+        setShareButtonText(WHITEBOARD_STRINGS.SHARE_SESSION);
+      }, SHARE_BUTTON_RESET_DELAY_MS);
+    } catch (err) {
+      console.error('Failed to copy link to clipboard:', err);
+    }
+  }, [whiteboardUrl]);
+
+  const renderTopRightUI = useCallback(
+    (_isMobile: boolean, _appState: unknown) => {
+      return (
+        <WhiteboardControls
+          error={error}
+          isRecording={isRecording}
+          onEndSession={stopRecording}
+          onShareSession={handleShareSession}
+          onStartRecording={startRecording}
+          shareButtonText={shareButtonText}
+        />
+      );
+    },
+    [error, isRecording, stopRecording, handleShareSession, startRecording, shareButtonText]
+  );
+
+  const handleStreamReady = useCallback((stream: MediaStream | null) => {
     streamReadyRef.current(stream);
   }, []);
+
+  useEffect(() => {
+    streamReadyRef.current = onStreamReady;
+  }, [onStreamReady]);
 
   useEffect(() => {
     if (isRecording && !recordingStartTime) {
@@ -37,40 +77,6 @@ function LiveSession({ sessionUid }: LiveSessionProps) {
       setRecordingStartTime(null);
     }
   }, [isRecording, recordingStartTime]);
-
-  function getCurrentRecordingTime(): number {
-    if (!recordingStartTime) {
-      return 0;
-    }
-    return Math.floor((Date.now() - recordingStartTime) / 1000);
-  }
-
-  async function handleShareSession() {
-    const whiteboardUrl = `${window.location.origin}${ROUTES.WHITEBOARD(sessionUid)}`;
-
-    try {
-      await navigator.clipboard.writeText(whiteboardUrl);
-      setShareButtonText('Link copied to clipboard');
-      setTimeout(() => {
-        setShareButtonText('Share Session');
-      }, 2000);
-    } catch (err) {
-      console.error('Failed to copy link to clipboard:', err);
-    }
-  }
-
-  function renderTopRightUI(_isMobile: boolean, _appState: unknown) {
-    return (
-      <WhiteboardControls
-        error={recordingError}
-        isRecording={isRecording}
-        onEndSession={handleEndSession}
-        onShareSession={handleShareSession}
-        onStartRecording={handleStartRecording}
-        shareButtonText={shareButtonText}
-      />
-    );
-  }
 
   return (
     <div className={styles.container}>
@@ -83,7 +89,7 @@ function LiveSession({ sessionUid }: LiveSessionProps) {
       <WebcamPanel
         getCurrentTime={getCurrentRecordingTime}
         isRecording={isRecording}
-        onStreamReady={onStreamReady}
+        onStreamReady={handleStreamReady}
         sessionUid={sessionUid}
       />
     </div>

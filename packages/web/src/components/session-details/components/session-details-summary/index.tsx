@@ -1,5 +1,7 @@
+import { useMemo } from 'react';
+import { SESSION_STRINGS } from '../../../../constants';
 import { Stack, Typography, UiCard, UiCardContent } from '../../../../ui-library';
-import AIFeedbackSection from '../../../../components/ai-feedback-section';
+import AIFeedbackSection from '../ai-feedback-section';
 import type { AISummaryComponent } from '../../../../types';
 import * as styles from './index.css';
 
@@ -11,10 +13,10 @@ interface SessionDetailsSummaryProps {
 
 function getComponentTitle(componentType: string): string {
   const titles: Record<string, string> = {
-    overview: 'Overview',
-    key_points: 'Key Points',
-    feedback: 'Feedback',
-    summary: 'Summary',
+    overview: SESSION_STRINGS.COMPONENT_TITLES.OVERVIEW,
+    key_points: SESSION_STRINGS.COMPONENT_TITLES.KEY_POINTS,
+    feedback: SESSION_STRINGS.COMPONENT_TITLES.FEEDBACK,
+    summary: SESSION_STRINGS.COMPONENT_TITLES.SUMMARY,
   };
   return titles[componentType] || componentType;
 }
@@ -25,8 +27,15 @@ function SessionDetailsSummary({
   onFeedbackChange,
 }: SessionDetailsSummaryProps) {
   // Filter out suggestions component - it's displayed separately
-  const filteredComponents = aiSummary?.filter((c) => c.component_type !== 'suggestions') ?? [];
-  const sortedComponents = filteredComponents.sort((a, b) => a.component_order - b.component_order);
+  const filteredComponents = useMemo(
+    () => aiSummary?.filter((c) => c.component_type !== 'suggestions') ?? [],
+    [aiSummary]
+  );
+
+  const sortedComponents = useMemo(
+    () => [...filteredComponents].sort((a, b) => a.component_order - b.component_order),
+    [filteredComponents]
+  );
 
   if (!aiSummary || filteredComponents.length === 0) {
     return null;
@@ -35,9 +44,9 @@ function SessionDetailsSummary({
   return (
     <Stack className={styles.root} spacing={2}>
       <Stack spacing={1}>
-        <Typography variant="h5">Summary</Typography>
+        <Typography variant="h5">{SESSION_STRINGS.SUMMARY_TITLE}</Typography>
         <Typography color="text.secondary" variant="body2">
-          Review the key moments and milestones from your session.
+          {SESSION_STRINGS.SUMMARY_DESCRIPTION}
         </Typography>
       </Stack>
 

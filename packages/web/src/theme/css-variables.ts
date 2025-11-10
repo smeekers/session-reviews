@@ -28,9 +28,17 @@ export function useThemeCSSVariables(theme: Theme): void {
     root.style.setProperty('--theme-primary-contrast', theme.palette.primary.contrastText);
 
     root.style.setProperty('--theme-error-main', theme.palette.error.main);
+    root.style.setProperty('--theme-error-light', theme.palette.error.light);
     root.style.setProperty('--theme-success-main', theme.palette.success.main);
+    root.style.setProperty('--theme-success-light', theme.palette.success.light);
     root.style.setProperty('--theme-warning-main', theme.palette.warning.main);
+    root.style.setProperty('--theme-warning-light', theme.palette.warning.light);
     root.style.setProperty('--theme-info-main', theme.palette.info.main);
+    root.style.setProperty('--theme-info-light', theme.palette.info.light);
+    root.style.setProperty('--theme-secondary-light', theme.palette.secondary.light);
+    root.style.setProperty('--theme-secondary-dark', theme.palette.secondary.dark);
+    root.style.setProperty('--theme-secondary-contrast', theme.palette.secondary.contrastText);
+    root.style.setProperty('--theme-secondary-main', theme.palette.secondary.main);
 
     root.style.setProperty('--theme-background-default', theme.palette.background.default);
     root.style.setProperty('--theme-background-paper', theme.palette.background.paper);

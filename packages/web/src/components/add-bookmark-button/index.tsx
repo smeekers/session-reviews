@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Add } from '@mui/icons-material';
+import { BOOKMARK_STRINGS, COMMON_STRINGS } from '../../constants';
 import { Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Stack, Typography } from '../../ui-library';
 import { useAddBookmark } from '../../hooks';
-import formatTimestamp from '../../helpers/format-timestamp';
+import { formatTimestamp } from '../../helpers/session-time';
 import * as styles from './index.css';
 
 interface AddBookmarkButtonProps {
@@ -53,25 +54,25 @@ function AddBookmarkButton({ disabled = false, getCurrentTime, sessionUid }: Add
         startIcon={<Add />}
         variant="contained"
       >
-        Add Bookmark
+        {BOOKMARK_STRINGS.ADD_BOOKMARK}
       </Button>
 
       <Dialog onClose={handleDialogClose} open={dialogOpen}>
-        <DialogTitle>Add Bookmark</DialogTitle>
+        <DialogTitle>{BOOKMARK_STRINGS.DIALOG_TITLE}</DialogTitle>
         <DialogContent>
           <Stack className={styles.dialogContent} spacing={2}>
             {pendingTimestamp !== null && (
               <Typography color="text.secondary" variant="body2">
-                Timestamp: {formatTimestamp(pendingTimestamp)}
+                {BOOKMARK_STRINGS.TIMESTAMP_LABEL} {formatTimestamp(pendingTimestamp)}
               </Typography>
             )}
             <TextField
               autoFocus
               fullWidth
-              label="Note (optional)"
+              label={BOOKMARK_STRINGS.NOTE_LABEL}
               multiline
               onChange={(e) => setNote(e.target.value)}
-              placeholder="Add a note about this moment..."
+              placeholder={BOOKMARK_STRINGS.NOTE_PLACEHOLDER}
               rows={3}
               value={note}
               variant="outlined"
@@ -80,10 +81,10 @@ function AddBookmarkButton({ disabled = false, getCurrentTime, sessionUid }: Add
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDialogClose} variant="outlined">
-            Cancel
+            {COMMON_STRINGS.CANCEL}
           </Button>
           <Button onClick={handleSaveBookmark} variant="contained">
-            Add Bookmark
+            {BOOKMARK_STRINGS.ADD_BOOKMARK}
           </Button>
         </DialogActions>
       </Dialog>

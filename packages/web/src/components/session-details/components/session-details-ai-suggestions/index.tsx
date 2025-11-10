@@ -1,5 +1,6 @@
+import { SESSION_STRINGS } from '../../../../constants';
 import { Stack, Typography } from '../../../../ui-library';
-import AIFeedbackSection from '../../../../components/ai-feedback-section';
+import AIFeedbackSection from '../ai-feedback-section';
 import SuggestionCard from '../../../../components/suggestion-card';
 import type { AISuggestion, AISummaryComponent } from '../../../../types';
 import * as styles from './index.css';
@@ -21,9 +22,7 @@ function SessionDetailsAISuggestions({
 }: SessionDetailsAISuggestionsProps) {
   // Extract suggestions from summary (preferred) or use legacy aiSuggestions prop
   const suggestionsComponent = aiSummary?.find((c) => c.component_type === 'suggestions');
-  const allSuggestions: AISuggestion[] = Array.isArray(suggestionsComponent?.content_details)
-    ? (suggestionsComponent.content_details as AISuggestion[])
-    : aiSuggestions ?? [];
+  const allSuggestions: AISuggestion[] = suggestionsComponent?.content_details ?? aiSuggestions ?? [];
 
   const visibleSuggestions = allSuggestions.filter((s) => s.status !== 'dismissed');
   const doneSuggestions = allSuggestions.filter((s) => s.status === 'done');
@@ -48,9 +47,9 @@ function SessionDetailsAISuggestions({
   return (
     <Stack spacing={2}>
       <Stack spacing={1}>
-        <Typography variant="h5">AI Suggestions</Typography>
+        <Typography variant="h5">{SESSION_STRINGS.AI_SUGGESTIONS_TITLE}</Typography>
         <Typography color="text.secondary" variant="body2">
-          Actionable recommendations based on your session.
+          {SESSION_STRINGS.AI_SUGGESTIONS_DESCRIPTION}
         </Typography>
       </Stack>
 
@@ -71,7 +70,7 @@ function SessionDetailsAISuggestions({
         {doneSuggestions.length > 0 && (
           <Stack spacing={1}>
             <Typography color="text.secondary" variant="body2">
-              Completed ({doneSuggestions.length})
+              {SESSION_STRINGS.COMPLETED} ({doneSuggestions.length})
             </Typography>
             <div className={styles.cardsGrid}>
               {doneSuggestions.map((suggestion) => (
@@ -90,7 +89,7 @@ function SessionDetailsAISuggestions({
         <AIFeedbackSection
           feedback={aiSuggestionsFeedback}
           onFeedbackChange={onFeedbackChange}
-          question="Was this list helpful?"
+          question={SESSION_STRINGS.WAS_THIS_LIST_HELPFUL}
         />
       )}
     </Stack>

@@ -10,25 +10,32 @@ export default defineConfig({
   use: {
     baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+    // Viewport size for consistent screenshots
+    viewport: { width: 1280, height: 720 },
   },
   projects: [
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
+  ],
+  webServer: [
     {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
+      command: 'PLAYWRIGHT_TEST=true pnpm --filter backend dev',
+      url: 'http://localhost:3001/health',
+      reuseExistingServer: !process.env.CI,
+      timeout: 120 * 1000,
+      env: {
+        PLAYWRIGHT_TEST: 'true',
+      },
     },
     {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
+      command: 'pnpm --filter web dev',
+      url: 'http://localhost:3000',
+      reuseExistingServer: !process.env.CI,
+      timeout: 120 * 1000,
     },
   ],
-  webServer: {
-    command: 'pnpm --filter web dev',
-    url: 'http://localhost:3000',
-    reuseExistingServer: !process.env.CI,
-  },
 });
 

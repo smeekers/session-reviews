@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 
 import { Lightbulb, TaskAlt, Feedback } from '@mui/icons-material';
+import { SUGGESTION_STRINGS, SUGGESTION_TYPE_LABELS } from '../../constants';
 import { Button, Chip, Stack, Typography, UiCard, UiCardActions, UiCardContent } from '../../ui-library';
 import type { AISuggestion, AISuggestionType } from '../../types';
 import * as styles from './index.css';
@@ -16,19 +17,19 @@ interface TypeConfig {
 
 const TYPE_CONFIG: Record<AISuggestionType, TypeConfig> = {
   task: {
-    label: 'Task',
+    label: SUGGESTION_TYPE_LABELS.task,
     variant: 'accent-green',
     icon: <TaskAlt />,
     color: 'success',
   },
   feedback: {
-    label: 'Feedback',
+    label: SUGGESTION_TYPE_LABELS.feedback,
     variant: 'accent-orange',
     icon: <Feedback />,
     color: 'warning',
   },
   idea: {
-    label: 'Idea',
+    label: SUGGESTION_TYPE_LABELS.idea,
     variant: 'accent-purple',
     icon: <Lightbulb />,
     color: 'secondary',
@@ -82,7 +83,7 @@ function SuggestionCard({ isCompleted = false, onMarkComplete, onDismiss, sugges
               onClick={handleMarkComplete}
               size="small"
             >
-              Mark Complete
+              {SUGGESTION_STRINGS.MARK_COMPLETE}
             </Button>
           )}
           {onDismiss && (
@@ -90,7 +91,7 @@ function SuggestionCard({ isCompleted = false, onMarkComplete, onDismiss, sugges
               onClick={handleDismiss}
               size="small"
             >
-              Reject
+              {SUGGESTION_STRINGS.REJECT}
             </Button>
           )}
         </UiCardActions>

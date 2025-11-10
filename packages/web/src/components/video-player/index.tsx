@@ -3,7 +3,7 @@ import type { ReactPlayerProps } from 'react-player';
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef } from 'react';
 import ReactPlayer from 'react-player';
 import * as styles from './index.css';
-import type { VideoPlayerRef } from './types';
+import type { VideoPlayerRef } from '../../types/video-player';
 
 interface VideoPlayerProps extends Omit<Partial<ReactPlayerProps>, 'onEnded' | 'onPause' | 'onPlay' | 'onReady'> {
   className?: string;

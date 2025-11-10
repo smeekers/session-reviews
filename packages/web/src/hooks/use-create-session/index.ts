@@ -2,10 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '../../helpers/api';
 import { invalidateSessionQueries } from '../../helpers/query-client';
 import type { Session } from '../../types';
-
-interface CreateSessionRequest {
-  name?: string;
-}
+import type { CreateSessionRequest } from '../../types/api';
 
 async function createSession(data: CreateSessionRequest): Promise<Session> {
   return apiFetch<Session>('/api/sessions', {

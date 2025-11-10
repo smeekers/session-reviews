@@ -2,10 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '../../helpers/api';
 import { invalidateSessionQueries } from '../../helpers/query-client';
 import type { AISuggestion, AISuggestionStatus } from '../../types';
-
-interface UpdateSuggestionStatusRequest {
-  status: AISuggestionStatus;
-}
+import type { UpdateSuggestionStatusRequest } from '../../types/api';
 
 async function updateSuggestionStatus(
   sessionUid: string,

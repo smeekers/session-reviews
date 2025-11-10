@@ -1,4 +1,5 @@
 import { FiberManualRecord, Share, Stop } from '@mui/icons-material';
+import { WHITEBOARD_STRINGS } from '../../constants';
 import { Button, Stack, Typography } from '../../ui-library';
 import * as styles from './index.css';
 
@@ -40,7 +41,7 @@ function WhiteboardControls({
             startIcon={<FiberManualRecord />}
             variant="contained"
           >
-            Start Recording
+            {WHITEBOARD_STRINGS.START_RECORDING}
           </Button>
         ) : (
           <Button
@@ -51,12 +52,12 @@ function WhiteboardControls({
             startIcon={<Stop />}
             variant="contained"
           >
-            End Session
+            {WHITEBOARD_STRINGS.END_SESSION}
           </Button>
         )}
       </Stack>
       {error && (
-        <Typography color="error" variant="caption">
+        <Typography color="error" role="alert" variant="caption">
           {error.message}
         </Typography>
       )}

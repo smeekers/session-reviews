@@ -1,7 +1,8 @@
-import { useEffect, useMemo } from 'react';
-import { format, formatDistanceStrict } from 'date-fns';
+import { useCallback, useEffect, useMemo } from 'react';
+import { SESSION_STRINGS } from '../../constants';
 import { Stack, Typography } from '../../ui-library';
 import { useUpdateAIFeedback, useUpdateSession, useUpdateSuggestionStatus } from '../../hooks';
+import { formatSessionDateTime, getSessionDuration } from '../../helpers/session-time';
 import EditableSessionTitle from './components/editable-session-title';
 import SessionDetailsSummary from './components/session-details-summary';
 import SessionDetailsAISuggestions from './components/session-details-ai-suggestions';
@@ -17,42 +18,47 @@ function SessionDetails({ session }: SessionDetailsProps) {
   const { updateSummaryFeedback, updateSuggestionsFeedback } = useUpdateAIFeedback(session.uid);
   const { updateSuggestionStatus } = useUpdateSuggestionStatus(session.uid);
   const { updateSession } = useUpdateSession(session.uid);
-  const sessionDuration = useMemo(() => {
-    if (session?.startTime && session?.endTime) {
-      return formatDistanceStrict(new Date(session.startTime), new Date(session.endTime), {
-        unit: 'minute',
-      });
-    }
-    return null;
-  }, [session]);
+  const sessionDuration = useMemo(() => getSessionDuration(session), [session]);
 
-  async function handleSummaryFeedbackChange(feedback: 0 | 1) {
-    try {
-      await updateSummaryFeedback(feedback);
-    } catch (err) {
-      console.error('Failed to update summary feedback:', err);
-    }
-  }
+  const handleSummaryFeedbackChange = useCallback(
+    async (feedback: 0 | 1) => {
+      try {
+        await updateSummaryFeedback(feedback);
+      } catch (err) {
+        console.error('Failed to update summary feedback:', err);
+      }
+    },
+    [updateSummaryFeedback]
+  );
 
-  async function handleSuggestionStatusChange(suggestionId: string, status: 'done' | 'dismissed') {
-    try {
-      await updateSuggestionStatus({ suggestionId, status });
-    } catch (err) {
-      console.error('Failed to update suggestion status:', err);
-    }
-  }
+  const handleSuggestionStatusChange = useCallback(
+    async (suggestionId: string, status: 'done' | 'dismissed') => {
+      try {
+        await updateSuggestionStatus({ suggestionId, status });
+      } catch (err) {
+        console.error('Failed to update suggestion status:', err);
+      }
+    },
+    [updateSuggestionStatus]
+  );
 
-  async function handleSuggestionsFeedbackChange(feedback: 0 | 1) {
-    try {
-      await updateSuggestionsFeedback(feedback);
-    } catch (err) {
-      console.error('Failed to update suggestions feedback:', err);
-    }
-  }
+  const handleSuggestionsFeedbackChange = useCallback(
+    async (feedback: 0 | 1) => {
+      try {
+        await updateSuggestionsFeedback(feedback);
+      } catch (err) {
+        console.error('Failed to update suggestions feedback:', err);
+      }
+    },
+    [updateSuggestionsFeedback]
+  );
 
-  async function handleSessionNameSave(name: string | undefined) {
-    await updateSession({ name });
-  }
+  const handleSessionNameSave = useCallback(
+    async (name: string | undefined) => {
+      await updateSession({ name });
+    },
+    [updateSession]
+  );
 
   useEffect(() => {
     if (session.status === 'completed') {
@@ -68,11 +74,11 @@ function SessionDetails({ session }: SessionDetailsProps) {
         <EditableSessionTitle
           name={session.name}
           onSave={handleSessionNameSave}
-          placeholder="Add a title..."
+          placeholder={SESSION_STRINGS.TITLE_PLACEHOLDER}
         />
         {session.startTime && (
           <Typography color="text.secondary" variant="body2">
-            {format(new Date(session.startTime), 'MMM dd, yyyy • h:mmaaa')}
+            {formatSessionDateTime(session.startTime)}
             {sessionDuration && ` • ${sessionDuration}`}
           </Typography>
         )}

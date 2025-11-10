@@ -2,11 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '../../helpers/api';
 import { invalidateSessionQueries } from '../../helpers/query-client';
 import type { Bookmark } from '../../types';
-
-interface AddBookmarkRequest {
-  timestamp: number;
-  note?: string;
-}
+import type { AddBookmarkRequest } from '../../types/api';
 
 async function addBookmark(sessionUid: string, data: AddBookmarkRequest): Promise<Bookmark> {
   return apiFetch<Bookmark>(`/api/sessions/${sessionUid}/bookmarks`, {

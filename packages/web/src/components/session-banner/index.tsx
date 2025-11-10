@@ -1,5 +1,6 @@
 import { useAtom } from 'jotai';
 import { useNavigate } from 'react-router-dom';
+import { COMMON_STRINGS } from '../../constants';
 import * as styles from './index.css';
 import { bannerAtom, getBannerConfig } from '../../atoms/banner';
 import { Alert, Button } from '../../ui-library';
@@ -44,7 +45,7 @@ function SessionBanner() {
             size="small"
             variant="text"
           >
-            Dismiss
+            {COMMON_STRINGS.DISMISS}
           </Button>
         </div>
       }

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { SESSION_STRINGS } from '../../../../constants';
 import SessionList from '../../../session-list';
 import SessionSection from '../../../session-section';
 import type { Session } from '../../../../types';
@@ -15,7 +16,7 @@ function PastSessions({ sessions }: PastSessionsProps) {
   }
 
   return (
-    <SessionSection expanded={expanded} onToggle={handleToggle} title="Past Sessions" variant="past">
+    <SessionSection expanded={expanded} onToggle={handleToggle} title={SESSION_STRINGS.PAST_SESSIONS} variant="past">
       <SessionList sessions={sessions} />
     </SessionSection>
   );

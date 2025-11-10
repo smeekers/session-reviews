@@ -2,9 +2,7 @@
  * Shared API helper utilities
  */
 
-interface FetchOptions extends Omit<RequestInit, 'body'> {
-  body?: unknown;
-}
+import type { FetchOptions } from '../../types/api';
 
 /**
  * Makes a fetch request with JSON handling and error checking

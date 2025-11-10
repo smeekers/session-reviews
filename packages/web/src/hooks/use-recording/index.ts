@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { MEDIA_RECORDER_TIMESLICE_MS } from '../../constants/timing';
 
 interface UseRecordingOptions {
   onStart?: () => void;
@@ -119,7 +120,7 @@ function useRecording({ onStart, onStop, onError }: UseRecordingOptions = {}): U
       };
 
       mediaRecorderRef.current = recorder;
-      recorder.start(1000);
+      recorder.start(MEDIA_RECORDER_TIMESLICE_MS);
       setIsRecording(true);
       onStart?.();
     } catch (err) {

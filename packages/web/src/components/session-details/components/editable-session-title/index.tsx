@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Edit } from '@mui/icons-material';
+import { SESSION_STRINGS } from '../../../../constants';
 import { TextField, Typography } from '../../../../ui-library';
 import * as styles from './index.css';
 
@@ -9,7 +10,7 @@ interface EditableSessionTitleProps {
   placeholder?: string;
 }
 
-function EditableSessionTitle({ name, onSave, placeholder = 'Add a title...' }: EditableSessionTitleProps) {
+function EditableSessionTitle({ name, onSave, placeholder = SESSION_STRINGS.TITLE_PLACEHOLDER }: EditableSessionTitleProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [localValue, setLocalValue] = useState(name || '');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -31,7 +32,14 @@ function EditableSessionTitle({ name, onSave, placeholder = 'Add a title...' }: 
     setIsEditing(true);
   }
 
-  function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+  function handleDivKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      setIsEditing(true);
+    }
+  }
+
+  function handleInputKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key === 'Enter') {
       event.preventDefault();
       inputRef.current?.blur();
@@ -62,7 +70,7 @@ function EditableSessionTitle({ name, onSave, placeholder = 'Add a title...' }: 
           inputRef={inputRef}
           onBlur={handleBlur}
           onChange={(e) => setLocalValue(e.target.value)}
-          onKeyDown={handleKeyDown}
+          onKeyDown={handleInputKeyDown}
           placeholder={placeholder}
           value={localValue}
           variant="standard"
@@ -72,7 +80,14 @@ function EditableSessionTitle({ name, onSave, placeholder = 'Add a title...' }: 
   }
 
   return (
-    <div className={styles.root} onClick={handleClick}>
+    <div
+      aria-label={SESSION_STRINGS.EDIT_TITLE_LABEL}
+      className={styles.root}
+      onClick={handleClick}
+      onKeyDown={handleDivKeyDown}
+      role="button"
+      tabIndex={0}
+    >
       <Typography
         className={name ? styles.title : styles.placeholder}
         color={name ? 'text.primary' : 'text.secondary'}

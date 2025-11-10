@@ -7,7 +7,7 @@ async function fetchSession(sessionUid: string): Promise<Session> {
 }
 
 function useSession(sessionUid: string) {
-  const { data: session, isLoading: loading, error, refetch } = useQuery({
+  const { data: session, isLoading, error, refetch } = useQuery({
     queryKey: ['session', sessionUid],
     queryFn: () => fetchSession(sessionUid),
     enabled: !!sessionUid,
@@ -15,7 +15,7 @@ function useSession(sessionUid: string) {
 
   return {
     session,
-    loading,
+    isLoading,
     error: error instanceof Error ? error : null,
     refetch,
   };

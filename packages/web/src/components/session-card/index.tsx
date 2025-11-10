@@ -1,38 +1,17 @@
+import { useMemo, useCallback } from 'react';
 import * as styles from './index.css';
 import { AccessTime, CalendarToday } from '@mui/icons-material';
-import { format, formatDistanceStrict } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
-import { ROUTES, statusColors, statusLabels } from '../../constants';
+import { ROUTES, actionTexts, statusColors, statusLabels, statusMessages, SESSION_STRINGS } from '../../constants';
 import { Chip, Stack, Typography, UiCard, UiCardActionArea, UiCardContent } from '../../ui-library';
+import { formatSessionDateTime, getSessionDuration } from '../../helpers/session-time';
 import type { Session } from '../../types';
 
 interface SessionCardProps {
   session: Session;
 }
 
-function getDurationText(session: Session): string {
-  if (session.status === 'ready') {
-    return 'Not started';
-  }
-
-  if (session.endTime && session.startTime) {
-    return formatDistanceStrict(new Date(session.startTime), new Date(session.endTime), {
-      unit: 'minute',
-    });
-  }
-
-  return 'In progress';
-}
-
 function getActionText(status: Session['status']): string {
-  const actionTexts: Record<Session['status'], string> = {
-    'ready': 'Start Session',
-    'in-progress': 'Join Session',
-    'processing': 'View Whiteboard',
-    'completed': 'Review Now',
-    'reviewed': 'Review Again',
-  };
-
   return actionTexts[status];
 }
 
@@ -41,48 +20,50 @@ function getSummaryText(session: Session): string | null {
     return session.aiSummary[0]?.content || null;
   }
 
-  const statusMessages: Record<Session['status'], string> = {
-    'ready': 'Session is ready! You can begin recording and start your session.',
-    'in-progress': 'Session is currently in progress. You can join now and collaborate on the whiteboard.',
-    'processing': 'Session is being processed. The recording is being uploaded and analyzed. You can still access the whiteboard while you wait.',
-    'completed': '',
-    'reviewed': '',
-  };
-
   return statusMessages[session.status] || null;
 }
 
 function SessionCard({ session }: SessionCardProps) {
   const navigate = useNavigate();
 
-  const startDate = session.startTime ? new Date(session.startTime) : new Date(session.createdAt);
-  const formattedDate = format(startDate, 'MMM dd, yyyy');
-  const formattedTime = format(startDate, 'h:mmaaa');
+  const { formattedDate, formattedTime } = useMemo(() => {
+    const startDate = session.startTime ? new Date(session.startTime) : new Date(session.createdAt);
+    const formattedDateTime = formatSessionDateTime(startDate);
+    const [date, time] = formattedDateTime.split(' • ');
+    return { formattedDate: date, formattedTime: time };
+  }, [session.startTime, session.createdAt]);
 
-  const durationText = getDurationText(session);
-  const actionText = getActionText(session.status);
-  const summaryText = getSummaryText(session);
+  const durationText = useMemo(
+    () => getSessionDuration(session) ?? SESSION_STRINGS.DURATION_IN_PROGRESS,
+    [session]
+  );
 
-  function handleClick() {
+  const actionText = useMemo(() => getActionText(session.status), [session.status]);
+
+  const summaryText = useMemo(() => getSummaryText(session), [session]);
+
+  const handleClick = useCallback(() => {
     if (session.status === 'ready') {
       navigate(ROUTES.LIVE_SESSION(session.uid));
     } else if (session.status === 'in-progress' || session.status === 'processing') {
       navigate(ROUTES.WHITEBOARD(session.uid));
     } else {
-      // All past sessions: completed, reviewed
       navigate(ROUTES.SESSION_DETAILS(session.uid));
     }
-  }
+  }, [session.status, session.uid, navigate]);
 
-  function handleKeyDown(event: React.KeyboardEvent) {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      handleClick();
-    }
-  }
+  const handleKeyDown = useCallback(
+    (event: React.KeyboardEvent) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        handleClick();
+      }
+    },
+    [handleClick]
+  );
 
   return (
-    <UiCard className={styles.root}>
+    <UiCard className={styles.root} data-testid="session-card">
       <UiCardActionArea
         component="div"
         onClick={handleClick}

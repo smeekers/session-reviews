@@ -2,10 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '../../helpers/api';
 import { invalidateSessionQueries } from '../../helpers/query-client';
 import type { Session } from '../../types';
-
-interface UpdateAIFeedbackRequest {
-  feedback: 0 | 1;
-}
+import type { UpdateAIFeedbackRequest } from '../../types/api';
 
 async function updateSummaryFeedback(sessionUid: string, data: UpdateAIFeedbackRequest): Promise<Session> {
   return apiFetch<Session>(`/api/sessions/${sessionUid}/ai-summary-feedback`, {
