@@ -16,6 +16,7 @@
     "prettify-fix": "prettier --write \"**/*.{ts,tsx,js,jsx,css,json,md}\""
   },
   "devDependencies": {
+    "@types/node": "^22.10.5",
     "@typescript-eslint/eslint-plugin": "^7.14.1",
     "@typescript-eslint/parser": "^7.14.1",
     "eslint": "^8.57.0",

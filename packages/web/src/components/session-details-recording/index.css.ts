@@ -6,9 +6,11 @@ const root = style({
 });
 
 const videoContainer = style({
+  borderRadius: '1rem',
   display: 'flex',
   flexDirection: 'row',
   gap: '1rem',
+  overflow: 'hidden',
   padding: '1rem',
   '@media': {
     [`(max-width: 768px)`]: {

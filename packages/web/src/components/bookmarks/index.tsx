@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Add } from '@mui/icons-material';
 import { Stack, Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from '../../ui-library';
 import type { VideoPlayerRef } from '../video-player/types';
@@ -18,6 +18,10 @@ function Bookmarks({ bookmarks = [], sessionUid, videoPlayerRef }: BookmarksProp
   const [dialogOpen, setDialogOpen] = useState(false);
   const [note, setNote] = useState('');
   const [pendingTimestamp, setPendingTimestamp] = useState<number | null>(null);
+
+  const sortedBookmarks = useMemo(() => {
+    return [...bookmarks].sort((a, b) => a.timestamp - b.timestamp);
+  }, [bookmarks]);
 
   function handleAddBookmarkClick() {
     if (videoPlayerRef.current) {
@@ -75,7 +79,7 @@ function Bookmarks({ bookmarks = [], sessionUid, videoPlayerRef }: BookmarksProp
           </Typography>
         ) : (
           <Stack spacing={1}>
-            {bookmarks.map((bookmark) => (
+            {sortedBookmarks.map((bookmark) => (
               <button
                 className={styles.bookmarkItem}
                 key={bookmark.id}

@@ -36,6 +36,22 @@ function getActionText(status: Session['status']): string {
   return actionTexts[status];
 }
 
+function getSummaryText(session: Session): string | null {
+  if (session.aiSummary && session.aiSummary.length > 0 && session.status !== 'in-progress' && session.status !== 'processing') {
+    return session.aiSummary[0]?.content || null;
+  }
+
+  const statusMessages: Record<Session['status'], string> = {
+    'ready': 'Session is ready! You can begin recording and start your session.',
+    'in-progress': 'Session is currently in progress. You can join now and collaborate on the whiteboard.',
+    'processing': 'Session is being processed. The recording is being uploaded and analyzed. You can still access the whiteboard while you wait.',
+    'completed': '',
+    'reviewed': '',
+  };
+
+  return statusMessages[session.status] || null;
+}
+
 function SessionCard({ session }: SessionCardProps) {
   const navigate = useNavigate();
 
@@ -45,6 +61,7 @@ function SessionCard({ session }: SessionCardProps) {
 
   const durationText = getDurationText(session);
   const actionText = getActionText(session.status);
+  const summaryText = getSummaryText(session);
 
   function handleClick() {
     if (session.status === 'ready') {
@@ -101,9 +118,9 @@ function SessionCard({ session }: SessionCardProps) {
           </Stack>
 
           <div className={styles.summarySection}>
-            {session.aiSummary && session.aiSummary.length > 0 && session.status !== 'in-progress' && session.status !== 'processing' ? (
+            {summaryText ? (
               <Typography className={styles.summary} variant="body2" color="text.secondary">
-                {session.aiSummary[0]?.content || ''}
+                {summaryText}
               </Typography>
             ) : (
               <div className={styles.summaryPlaceholder} />

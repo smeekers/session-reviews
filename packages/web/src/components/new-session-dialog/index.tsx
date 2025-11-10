@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { useAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 import * as styles from './index.css';
 import { bannerAtom } from '../../atoms/banner';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField } from '../../ui-library';
-import useCreateSession from '../../hooks/use-create-session';
+import { useCreateSession } from '../../hooks';
 
 interface NewSessionDialogProps {
   open: boolean;
@@ -13,41 +13,41 @@ interface NewSessionDialogProps {
 
 function NewSessionDialog({ open, onClose, onSessionCreated }: NewSessionDialogProps) {
   const [name, setName] = useState('');
-  const { createSession, isLoading } = useCreateSession();
-  const [, setBannerState] = useAtom(bannerAtom);
+  const { createSession } = useCreateSession();
+  const setBannerState = useSetAtom(bannerAtom);
 
   function handleCancel() {
     setName('');
     onClose();
   }
 
-  async function handleCreate() {
-    if (isLoading) {
-      return;
-    }
-
-    const trimmedName = name.trim();
-    
-    // Show creating banner immediately
-    const tempUid = `temp_${Date.now()}`;
-    setBannerState({ type: 'creating', sessionUid: tempUid });
-
-    try {
-      const session = await createSession({ name: trimmedName || undefined });
-      setName('');
-      onClose();
-      onSessionCreated(session.uid, session.name);
-    } catch (error) {
-      // Error handling - reset banner on error
-      setBannerState({ type: 'hidden' });
-      console.error('Failed to create session:', error);
+  function handleKeyDown(event: React.KeyboardEvent) {
+    if (event.key === 'Enter' && name.trim()) {
+      event.preventDefault();
+      handleCreate();
     }
   }
 
-  function handleKeyDown(event: React.KeyboardEvent) {
-    if (event.key === 'Enter' && !isLoading && name.trim()) {
-      event.preventDefault();
-      handleCreate();
+  async function handleCreate() {
+    const trimmedName = name.trim();
+    
+    const tempUid = `temp_${Date.now()}`;
+    setBannerState({ type: 'creating', sessionUid: tempUid });
+    
+    setName('');
+    onClose();
+
+    try {
+      const session = await createSession({ name: trimmedName || undefined });
+      setBannerState({
+        type: 'ready',
+        sessionUid: session.uid,
+        sessionName: session.name,
+      });
+      onSessionCreated(session.uid, session.name);
+    } catch (error) {
+      setBannerState({ type: 'hidden' });
+      console.error('Failed to create session:', error);
     }
   }
 
@@ -58,7 +58,7 @@ function NewSessionDialog({ open, onClose, onSessionCreated }: NewSessionDialogP
         <Stack className={styles.content} spacing={2}>
           <TextField
             autoFocus
-            disabled={isLoading}
+            disabled={false}
             fullWidth
             label="Session Name (optional)"
             onChange={(e) => setName(e.target.value)}
@@ -70,11 +70,11 @@ function NewSessionDialog({ open, onClose, onSessionCreated }: NewSessionDialogP
         </Stack>
       </DialogContent>
       <DialogActions>
-        <Button disabled={isLoading} onClick={handleCancel} variant="outlined">
+        <Button onClick={handleCancel} variant="outlined">
           Cancel
         </Button>
-        <Button disabled={isLoading} onClick={handleCreate} variant="contained">
-          {isLoading ? 'Creating...' : 'Create Session'}
+        <Button onClick={handleCreate} variant="contained">
+          Create Session
         </Button>
       </DialogActions>
     </Dialog>

@@ -32,12 +32,6 @@ const VideoPlayer = forwardRef<VideoPlayerRef | null, VideoPlayerProps>(
     const innerRef = useRef<VideoPlayerRef | null>(null);
     const playerReady = useRef(false);
 
-    const callbackRef = useCallback((player: VideoPlayerRef | null) => {
-      innerRef.current = player;
-    }, []);
-
-    useImperativeHandle<VideoPlayerRef | null, VideoPlayerRef | null>(ref, () => innerRef.current ?? null);
-
     function handlePlay() {
       const currentPlayer = innerRef.current;
       onPlay?.(currentPlayer);
@@ -58,7 +52,12 @@ const VideoPlayer = forwardRef<VideoPlayerRef | null, VideoPlayerProps>(
       onReady?.(player as VideoPlayerRef);
     }
 
-    // Update player current time when available
+    const callbackRef = useCallback((player: VideoPlayerRef | null) => {
+      innerRef.current = player;
+    }, []);
+
+    useImperativeHandle<VideoPlayerRef | null, VideoPlayerRef | null>(ref, () => innerRef.current ?? null);
+
     useEffect(() => {
       const currentPlayer = innerRef.current;
       if (typeof currentTime === 'number' && currentTime >= 0 && currentPlayer && playerReady.current) {

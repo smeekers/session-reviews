@@ -1,9 +1,26 @@
 import { Router } from 'express';
+import multer from 'multer';
 import { z } from 'zod';
 import { MOCK_VIDEO_URL } from '../constants/video';
 import { store } from '../data';
+import { generateMockSummary, generateMockSuggestions, generateMockTranscript } from '../lib/mock-ai';
+import type { AISuggestion, AISummaryComponent } from '../data/memory-store';
 
 export const sessionsRouter = Router();
+
+// Helper function to add realistic delays
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// Helper to add random delay within a range (for more realistic variation)
+function randomDelay(min: number, max: number): Promise<void> {
+  const ms = Math.floor(Math.random() * (max - min + 1)) + min;
+  return delay(ms);
+}
+
+// Configure multer for in-memory file uploads
+const upload = multer({ storage: multer.memoryStorage() });
 
 const createSessionSchema = z.object({
   name: z.string().optional(),
@@ -60,6 +77,7 @@ const updateAIFeedbackSchema = z.object({
 // GET /api/sessions - List all sessions
 sessionsRouter.get('/', async (_req, res) => {
   try {
+    await randomDelay(200, 500);
     const sessions = await store.getAllSessions();
     res.json(sessions);
   } catch (error) {
@@ -70,6 +88,7 @@ sessionsRouter.get('/', async (_req, res) => {
 // GET /api/sessions/:uid - Get session by UID
 sessionsRouter.get('/:uid', async (req, res) => {
   try {
+    await randomDelay(150, 300);
     const session = await store.getSession(req.params.uid);
     if (!session) {
       return res.status(404).json({ error: 'Session not found' });
@@ -84,6 +103,8 @@ sessionsRouter.get('/:uid', async (req, res) => {
 sessionsRouter.post('/', async (req, res) => {
   try {
     const data = createSessionSchema.parse(req.body);
+    
+    await randomDelay(300, 600);
     
     // Generate session UID and liveblocks room name
     const uid = `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
@@ -110,6 +131,8 @@ sessionsRouter.post('/', async (req, res) => {
 sessionsRouter.put('/:uid', async (req, res) => {
   try {
     const data = updateSessionSchema.parse(req.body);
+    
+    await randomDelay(200, 400);
     
     // Get existing session to check current state
     const existingSession = await store.getSession(req.params.uid);
@@ -149,6 +172,7 @@ sessionsRouter.put('/:uid', async (req, res) => {
 // DELETE /api/sessions/:uid - Delete session
 sessionsRouter.delete('/:uid', async (req, res) => {
   try {
+    await randomDelay(200, 300);
     const deleted = await store.deleteSession(req.params.uid);
     if (!deleted) {
       return res.status(404).json({ error: 'Session not found' });
@@ -163,6 +187,7 @@ sessionsRouter.delete('/:uid', async (req, res) => {
 sessionsRouter.post('/:uid/bookmarks', async (req, res) => {
   try {
     const data = addBookmarkSchema.parse(req.body);
+    await randomDelay(200, 350);
     const bookmark = await store.addBookmark(req.params.uid, data);
     if (!bookmark) {
       return res.status(404).json({ error: 'Session not found' });
@@ -186,6 +211,7 @@ sessionsRouter.put('/:uid/bookmarks/:bookmarkId', async (req, res) => {
       })
       .parse(req.body);
 
+    await randomDelay(200, 300);
     const bookmark = await store.updateBookmark(req.params.uid, req.params.bookmarkId, updates);
     if (!bookmark) {
       return res.status(404).json({ error: 'Bookmark not found' });
@@ -202,6 +228,7 @@ sessionsRouter.put('/:uid/bookmarks/:bookmarkId', async (req, res) => {
 // DELETE /api/sessions/:uid/bookmarks/:bookmarkId - Delete bookmark
 sessionsRouter.delete('/:uid/bookmarks/:bookmarkId', async (req, res) => {
   try {
+    await randomDelay(150, 250);
     const deleted = await store.deleteBookmark(req.params.uid, req.params.bookmarkId);
     if (!deleted) {
       return res.status(404).json({ error: 'Bookmark not found' });
@@ -216,6 +243,7 @@ sessionsRouter.delete('/:uid/bookmarks/:bookmarkId', async (req, res) => {
 sessionsRouter.put('/:uid/ai-summary-feedback', async (req, res) => {
   try {
     const data = updateAIFeedbackSchema.parse(req.body);
+    await randomDelay(200, 300);
     const session = await store.updateSession(req.params.uid, {
       aiSummaryFeedback: data.feedback,
     });
@@ -239,6 +267,7 @@ const updateSuggestionStatusSchema = z.object({
 sessionsRouter.put('/:uid/ai-suggestions/:suggestionId/status', async (req, res) => {
   try {
     const data = updateSuggestionStatusSchema.parse(req.body);
+    await randomDelay(200, 300);
     const suggestion = await store.updateAISuggestionStatus(
       req.params.uid,
       req.params.suggestionId,
@@ -260,6 +289,7 @@ sessionsRouter.put('/:uid/ai-suggestions/:suggestionId/status', async (req, res)
 sessionsRouter.put('/:uid/ai-suggestions-feedback', async (req, res) => {
   try {
     const data = updateAIFeedbackSchema.parse(req.body);
+    await randomDelay(200, 300);
     const session = await store.updateSession(req.params.uid, {
       aiSuggestionsFeedback: data.feedback,
     });
@@ -275,9 +305,67 @@ sessionsRouter.put('/:uid/ai-suggestions-feedback', async (req, res) => {
   }
 });
 
+// POST /api/sessions/:uid/end - End session and process recording
+sessionsRouter.post('/:uid/end', upload.single('recording'), async (req, res) => {
+  try {
+    const session = await store.getSession(req.params.uid);
+    if (!session) {
+      return res.status(404).json({ error: 'Session not found' });
+    }
+
+    // Step 1: Update status to processing and set endTime
+    await store.updateSession(req.params.uid, {
+      status: 'processing',
+      endTime: new Date().toISOString(),
+    });
+
+    // Step 2: Upload to S3 (mock for now - just set the mock URL)
+    // In production, this would upload req.file.buffer to S3
+    // Note: Currently the recording blob is received but not stored anywhere
+    // In production, req.file.buffer would be uploaded to S3 here
+    await delay(10000);
+    const videoUrl = MOCK_VIDEO_URL;
+
+    // Step 3: Generate transcript (mock)
+    await delay(8000);
+    const transcript = generateMockTranscript();
+
+    // Step 4: Generate AI summary (mock)
+    await delay(8000);
+    const aiSummary: AISummaryComponent[] = generateMockSummary();
+
+    // Step 5: Generate AI suggestions (mock)
+    await delay(4000);
+    const mockSuggestions: Omit<AISuggestion, 'id' | 'createdAt'>[] = generateMockSuggestions(5);
+    const aiSuggestions: AISuggestion[] = mockSuggestions.map((suggestion, idx) => {
+      return {
+        content: suggestion.content,
+        status: suggestion.status,
+        id: `suggestion_${req.params.uid}_${idx + 1}`,
+        createdAt: new Date().toISOString(),
+      };
+    });
+
+    // Step 6: Mark as completed with all data
+    const completedSession = await store.updateSession(req.params.uid, {
+      status: 'completed',
+      videoUrl,
+      transcript,
+      aiSummary,
+      aiSuggestions,
+    });
+
+    res.json(completedSession);
+  } catch (error) {
+    console.error('Error ending session:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // PUT /api/sessions/:uid/mark-reviewed - Mark session as reviewed
 sessionsRouter.put('/:uid/mark-reviewed', async (req, res) => {
   try {
+    await randomDelay(200, 300);
     const session = await store.updateSession(req.params.uid, {
       status: 'reviewed',
     });

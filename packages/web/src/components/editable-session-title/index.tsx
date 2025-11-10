@@ -31,6 +31,17 @@ function EditableSessionTitle({ name, onSave, placeholder = 'Add a title...' }: 
     setIsEditing(true);
   }
 
+  function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      inputRef.current?.blur();
+    } else if (event.key === 'Escape') {
+      event.preventDefault();
+      setLocalValue(name || '');
+      setIsEditing(false);
+    }
+  }
+
   async function handleBlur() {
     setIsEditing(false);
     const trimmedValue = localValue.trim();
@@ -40,17 +51,6 @@ function EditableSessionTitle({ name, onSave, placeholder = 'Add a title...' }: 
       await onSave(finalValue);
     } else {
       setLocalValue(name || '');
-    }
-  }
-
-  function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      inputRef.current?.blur();
-    } else if (event.key === 'Escape') {
-      event.preventDefault();
-      setLocalValue(name || '');
-      setIsEditing(false);
     }
   }
 

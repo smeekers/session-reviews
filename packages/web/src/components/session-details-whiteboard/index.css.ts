@@ -6,8 +6,8 @@ const root = style({
 });
 
 const whiteboardContainer = style({
-  height: '400px',
-  minHeight: '400px',
+  height: '37.5rem',
+  minHeight: '37.5rem',
   overflow: 'hidden',
   padding: 0,
 });

@@ -91,6 +91,29 @@ export const theme = createTheme({
         },
       },
     },
+    MuiIconButton: {
+      styleOverrides: {
+        root: ({ ownerState, theme }) => {
+          if (ownerState.color === 'active') {
+            return {
+              color: theme.palette.active.contrastText,
+              '&:hover': {
+                backgroundColor: theme.palette.active.dark,
+              },
+            };
+          }
+          if (ownerState.color === 'past') {
+            return {
+              color: theme.palette.past.contrastText,
+              '&:hover': {
+                backgroundColor: theme.palette.past.dark,
+              },
+            };
+          }
+          return {};
+        },
+      },
+    },
   },
 });
 
@@ -104,6 +127,14 @@ declare module '@mui/material/styles' {
   interface PaletteOptions {
     active?: PaletteOptions['primary'];
     past?: PaletteOptions['primary'];
+  }
+}
+
+// Extend IconButton to support custom colors
+declare module '@mui/material/IconButton' {
+  interface IconButtonPropsColorOverrides {
+    active: true;
+    past: true;
   }
 }
 

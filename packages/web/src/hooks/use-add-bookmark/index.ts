@@ -1,4 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiFetch } from '../../helpers/api';
+import { invalidateSessionQueries } from '../../helpers/query-client';
 import type { Bookmark } from '../../types';
 
 interface AddBookmarkRequest {
@@ -7,22 +9,13 @@ interface AddBookmarkRequest {
 }
 
 async function addBookmark(sessionUid: string, data: AddBookmarkRequest): Promise<Bookmark> {
-  const response = await fetch(`/api/sessions/${sessionUid}/bookmarks`, {
+  return apiFetch<Bookmark>(`/api/sessions/${sessionUid}/bookmarks`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
+    body: {
       timestamp: data.timestamp,
       note: data.note,
-    }),
+    },
   });
-
-  if (!response.ok) {
-    throw new Error(`Failed to add bookmark: ${response.statusText}`);
-  }
-
-  return response.json();
 }
 
 function useAddBookmark(sessionUid: string) {
@@ -31,8 +24,7 @@ function useAddBookmark(sessionUid: string) {
   const mutation = useMutation({
     mutationFn: (data: AddBookmarkRequest) => addBookmark(sessionUid, data),
     onSuccess: () => {
-      // Invalidate and refetch session
-      queryClient.invalidateQueries({ queryKey: ['session', sessionUid] });
+      invalidateSessionQueries(queryClient, sessionUid);
     },
   });
 

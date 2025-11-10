@@ -1,59 +1,50 @@
 import { useAtom } from 'jotai';
 import { useNavigate } from 'react-router-dom';
 import * as styles from './index.css';
-import { bannerAtom } from '../../atoms/banner';
-import { ROUTES } from '../../constants';
+import { bannerAtom, getBannerConfig } from '../../atoms/banner';
 import { Alert, Button } from '../../ui-library';
 
 function SessionBanner() {
   const [bannerState, setBannerState] = useAtom(bannerAtom);
   const navigate = useNavigate();
 
-  if (bannerState.type === 'hidden') {
-    return null;
-  }
+  const config = getBannerConfig(bannerState);
 
   function handleDismiss() {
     setBannerState({ type: 'hidden' });
   }
 
-  function handleJoinNow() {
-    if (bannerState.type === 'ready') {
-      navigate(ROUTES.LIVE_SESSION(bannerState.sessionUid));
-      setBannerState({ type: 'hidden' });
-    }
+  function handleAction(route: string) {
+    navigate(route);
+    setBannerState({ type: 'hidden' });
   }
 
-  if (bannerState.type === 'creating') {
-    return (
-      <Alert
-        className={styles.banner}
-        onClose={handleDismiss}
-        severity="info"
-      >
-        Creating session...
-      </Alert>
-    );
+  if (!config) {
+    return null;
   }
 
-  if (bannerState.type === 'ready') {
-    return (
-      <Alert
-        action={
-          <Button onClick={handleJoinNow} size="small" variant="contained">
-            Join Now
+  const actionButton = config.actionButton;
+
+  return (
+    <Alert
+      action={
+        actionButton ? (
+          <Button
+            onClick={() => handleAction(actionButton.route)}
+            size="small"
+            variant="contained"
+          >
+            {actionButton.label}
           </Button>
-        }
-        className={styles.banner}
-        onClose={handleDismiss}
-        severity="success"
-      >
-        Session ready{bannerState.sessionName ? `: ${bannerState.sessionName}` : ''}
-      </Alert>
-    );
-  }
-
-  return null;
+        ) : undefined
+      }
+      className={styles.banner}
+      onClose={handleDismiss}
+      severity={config.severity}
+    >
+      {config.message}
+    </Alert>
+  );
 }
 
 export default SessionBanner;

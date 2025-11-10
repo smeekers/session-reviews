@@ -65,7 +65,7 @@ function SessionFilters() {
           </MenuItem>
         ))}
       </Menu>
-      {/* More filters can be added here later */}
+      {/* TODO: add more filters */}
     </Stack>
   );
 }

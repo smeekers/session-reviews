@@ -1,7 +1,8 @@
-/// <reference path="./.sst/platform/config.d.ts" />
-
+// SST provides types at runtime via .sst/platform/config.d.ts
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error - $config is provided by SST at runtime
 export default $config({
-  app(input) {
+  app(_input) {
     return {
       name: 'session-reviews',
       removal: 'remove',

@@ -1,9 +1,7 @@
 import { useState } from 'react';
-import { Add, Remove } from '@mui/icons-material';
-import { IconButton, Stack, Typography } from '../../ui-library';
 import SessionList from '../session-list';
+import SessionSection from '../session-section';
 import type { Session } from '../../types';
-import * as styles from './index.css';
 
 interface PastSessionsProps {
   sessions: Session[];
@@ -12,28 +10,14 @@ interface PastSessionsProps {
 function PastSessions({ sessions }: PastSessionsProps) {
   const [expanded, setExpanded] = useState(true);
 
-  return (
-    <div className={styles.section}>
-      <Stack className={styles.header} direction="row" justifyContent="space-between" alignItems="center">
-        <Typography className={styles.title} variant="h5">
-          Past Sessions
-        </Typography>
-        <IconButton
-          aria-label={expanded ? 'Collapse' : 'Expand'}
-          className={styles.expandButton}
-          onClick={() => setExpanded(!expanded)}
-          size="small"
-        >
-          {expanded ? <Remove /> : <Add />}
-        </IconButton>
-      </Stack>
+  function handleToggle() {
+    setExpanded((prev) => !prev);
+  }
 
-      {expanded && (
-        <div className={styles.content}>
-          <SessionList sessions={sessions} />
-        </div>
-      )}
-    </div>
+  return (
+    <SessionSection expanded={expanded} onToggle={handleToggle} title="Past Sessions" variant="past">
+      <SessionList sessions={sessions} />
+    </SessionSection>
   );
 }
 

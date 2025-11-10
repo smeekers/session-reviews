@@ -8,8 +8,9 @@ import SessionDetailsSummary from '../../components/session-details-summary';
 import SessionDetailsAISuggestions from '../../components/session-details-ai-suggestions';
 import SessionDetailsRecording from '../../components/session-details-recording';
 import SessionDetailsWhiteboard from '../../components/session-details-whiteboard';
+import Loading from '../../components/loading';
 import { ROUTES } from '../../constants';
-import { useSession, useUpdateAIFeedback, useUpdateSessionName, useUpdateSuggestionStatus } from '../../hooks';
+import { useSession, useUpdateAIFeedback, useUpdateSession, useUpdateSuggestionStatus } from '../../hooks';
 import * as styles from './index.css';
 
 function SessionDetails() {
@@ -18,7 +19,16 @@ function SessionDetails() {
   const { session, loading, error } = useSession(sessionUid || '');
   const { updateSummaryFeedback, updateSuggestionsFeedback } = useUpdateAIFeedback(sessionUid || '');
   const { updateSuggestionStatus } = useUpdateSuggestionStatus(sessionUid || '');
-  const { updateSessionName } = useUpdateSessionName(sessionUid || '');
+  const { updateSession } = useUpdateSession(sessionUid || '');
+
+  const sessionDuration = useMemo(() => {
+    if (session?.startTime && session?.endTime) {
+      return formatDistanceStrict(new Date(session.startTime), new Date(session.endTime), {
+        unit: 'minute',
+      });
+    }
+    return null;
+  }, [session]);
 
   function handleBackClick() {
     navigate(ROUTES.HOME);
@@ -49,24 +59,11 @@ function SessionDetails() {
   }
 
   async function handleSessionNameSave(name: string | undefined) {
-    await updateSessionName(name);
+    await updateSession({ name });
   }
 
-  const sessionDuration = useMemo(() => {
-    if (session?.startTime && session?.endTime) {
-      return formatDistanceStrict(new Date(session.startTime), new Date(session.endTime), {
-        unit: 'minute',
-      });
-    }
-    return null;
-  }, [session]);
-
   if (loading) {
-    return (
-      <Container className={styles.container} maxWidth="lg">
-        <Typography>Loading session...</Typography>
-      </Container>
-    );
+    return <Loading message="Loading session..." />;
   }
 
   if (error || !session) {

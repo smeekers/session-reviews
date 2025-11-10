@@ -1,4 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiFetch } from '../../helpers/api';
+import { invalidateSessionQueries } from '../../helpers/query-client';
 import type { Session } from '../../types';
 
 interface UpdateAIFeedbackRequest {
@@ -6,35 +8,17 @@ interface UpdateAIFeedbackRequest {
 }
 
 async function updateSummaryFeedback(sessionUid: string, data: UpdateAIFeedbackRequest): Promise<Session> {
-  const response = await fetch(`/api/sessions/${sessionUid}/ai-summary-feedback`, {
+  return apiFetch<Session>(`/api/sessions/${sessionUid}/ai-summary-feedback`, {
     method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
+    body: data,
   });
-
-  if (!response.ok) {
-    throw new Error(`Failed to update summary feedback: ${response.statusText}`);
-  }
-
-  return response.json();
 }
 
 async function updateSuggestionsFeedback(sessionUid: string, data: UpdateAIFeedbackRequest): Promise<Session> {
-  const response = await fetch(`/api/sessions/${sessionUid}/ai-suggestions-feedback`, {
+  return apiFetch<Session>(`/api/sessions/${sessionUid}/ai-suggestions-feedback`, {
     method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
+    body: data,
   });
-
-  if (!response.ok) {
-    throw new Error(`Failed to update suggestions feedback: ${response.statusText}`);
-  }
-
-  return response.json();
 }
 
 function useUpdateAIFeedback(sessionUid: string) {
@@ -43,16 +27,14 @@ function useUpdateAIFeedback(sessionUid: string) {
   const summaryMutation = useMutation({
     mutationFn: (feedback: 0 | 1) => updateSummaryFeedback(sessionUid, { feedback }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['session', sessionUid] });
-      queryClient.invalidateQueries({ queryKey: ['sessions'] });
+      invalidateSessionQueries(queryClient, sessionUid);
     },
   });
 
   const suggestionsMutation = useMutation({
     mutationFn: (feedback: 0 | 1) => updateSuggestionsFeedback(sessionUid, { feedback }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['session', sessionUid] });
-      queryClient.invalidateQueries({ queryKey: ['sessions'] });
+      invalidateSessionQueries(queryClient, sessionUid);
     },
   });
 

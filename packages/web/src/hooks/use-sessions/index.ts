@@ -1,12 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
+import { apiFetch } from '../../helpers/api';
 import type { Session } from '../../types';
 
 async function fetchSessions(): Promise<Session[]> {
-  const response = await fetch('/api/sessions');
-  if (!response.ok) {
-    throw new Error(`Failed to fetch sessions: ${response.statusText}`);
-  }
-  return response.json();
+  return apiFetch<Session[]>('/api/sessions');
 }
 
 function useSessions() {

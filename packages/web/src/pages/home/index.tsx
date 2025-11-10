@@ -4,6 +4,7 @@ import ActiveSessions from '../../components/active-sessions';
 import PastSessions from '../../components/past-sessions';
 import SessionBanner from '../../components/session-banner';
 import SessionFilters from '../../components/session-filters';
+import Loading from '../../components/loading';
 import { useSessions } from '../../hooks';
 import * as styles from './index.css';
 
@@ -26,11 +27,7 @@ function Home() {
   }, [sessions]);
 
   if (loading) {
-    return (
-      <Container className={styles.container} maxWidth="lg">
-        <Typography>Loading sessions...</Typography>
-      </Container>
-    );
+    return <Loading message="Loading sessions..." />;
   }
 
   if (error) {

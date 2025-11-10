@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { useAtom } from 'jotai';
-import { Add, Remove } from '@mui/icons-material';
+import { useSetAtom } from 'jotai';
+import { Add } from '@mui/icons-material';
 import { bannerAtom } from '../../atoms/banner';
-import { Button, IconButton, Stack, Typography } from '../../ui-library';
+import { Button } from '../../ui-library';
 import NewSessionDialog from '../new-session-dialog';
 import SessionList from '../session-list';
+import SessionSection from '../session-section';
 import type { Session } from '../../types';
 import * as styles from './index.css';
 
@@ -15,7 +16,7 @@ interface ActiveSessionsProps {
 function ActiveSessions({ sessions }: ActiveSessionsProps) {
   const [expanded, setExpanded] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [, setBannerState] = useAtom(bannerAtom);
+  const setBannerState = useSetAtom(bannerAtom);
 
   function handleNewSession() {
     setDialogOpen(true);
@@ -33,39 +34,30 @@ function ActiveSessions({ sessions }: ActiveSessionsProps) {
     });
   }
 
+  function handleToggle() {
+    setExpanded((prev) => !prev);
+  }
+
   return (
     <>
-      <div className={styles.section}>
-        <Stack className={styles.header} direction="row" justifyContent="space-between" alignItems="center">
-          <Stack className={styles.titleContainer} direction="row" spacing={2} alignItems="center">
-            <Typography className={styles.title} variant="h5">
-              Active Sessions
-            </Typography>
-            <Button
-              className={styles.newSessionButton}
-              onClick={handleNewSession}
-              startIcon={<Add />}
-              variant="contained"
-            >
-              New Session
-            </Button>
-          </Stack>
-          <IconButton
-            aria-label={expanded ? 'Collapse' : 'Expand'}
-            className={styles.expandButton}
-            onClick={() => setExpanded(!expanded)}
-            size="small"
+      <SessionSection
+        expanded={expanded}
+        headerActions={
+          <Button
+            className={styles.newSessionButton}
+            onClick={handleNewSession}
+            startIcon={<Add />}
+            variant="contained"
           >
-            {expanded ? <Remove /> : <Add />}
-          </IconButton>
-        </Stack>
-
-        {expanded && (
-          <div className={styles.content}>
-            <SessionList sessions={sessions} />
-          </div>
-        )}
-      </div>
+            New Session
+          </Button>
+        }
+        onToggle={handleToggle}
+        title="Active Sessions"
+        variant="active"
+      >
+        <SessionList sessions={sessions} />
+      </SessionSection>
       <NewSessionDialog
         onClose={handleDialogClose}
         onSessionCreated={handleSessionCreated}

@@ -1,7 +1,7 @@
-import { CheckCircle, Close } from '@mui/icons-material';
-import { IconButton, Stack, Typography, UiCard, UiCardContent } from '../../ui-library';
+import { Stack, Typography, Button, Paper } from '../../ui-library';
 import AIFeedbackControls from '../ai-feedback-controls';
 import type { AISuggestion } from '../../types';
+import * as styles from './index.css';
 
 interface SessionDetailsAISuggestionsProps {
   aiSuggestions?: AISuggestion[];
@@ -16,17 +16,9 @@ function SessionDetailsAISuggestions({
   onSuggestionStatusChange,
   onFeedbackChange,
 }: SessionDetailsAISuggestionsProps) {
-  if (!aiSuggestions || aiSuggestions.length === 0) {
-    return null;
-  }
-
-  const visibleSuggestions = aiSuggestions.filter((s) => s.status !== 'dismissed');
-  const doneSuggestions = aiSuggestions.filter((s) => s.status === 'done');
-  const pendingSuggestions = aiSuggestions.filter((s) => s.status === 'pending');
-
-  if (visibleSuggestions.length === 0) {
-    return null;
-  }
+  const visibleSuggestions = aiSuggestions?.filter((s) => s.status !== 'dismissed') ?? [];
+  const doneSuggestions = aiSuggestions?.filter((s) => s.status === 'done') ?? [];
+  const pendingSuggestions = aiSuggestions?.filter((s) => s.status === 'pending') ?? [];
 
   function handleMarkDone(suggestionId: string) {
     onSuggestionStatusChange?.(suggestionId, 'done');
@@ -34,6 +26,14 @@ function SessionDetailsAISuggestions({
 
   function handleDismiss(suggestionId: string) {
     onSuggestionStatusChange?.(suggestionId, 'dismissed');
+  }
+
+  if (!aiSuggestions || aiSuggestions.length === 0) {
+    return null;
+  }
+
+  if (visibleSuggestions.length === 0) {
+    return null;
   }
 
   return (
@@ -45,64 +45,52 @@ function SessionDetailsAISuggestions({
         </Typography>
       </Stack>
 
-      <Stack spacing={2}>
-        {pendingSuggestions.map((suggestion) => (
-          <UiCard key={suggestion.id}>
-            <UiCardContent>
-              <Stack direction="row" spacing={2} alignItems="flex-start">
-                <Stack flex={1} spacing={1}>
-                  <Typography variant="body2">{suggestion.content}</Typography>
-                </Stack>
-                <Stack direction="row" spacing={1}>
-                  <IconButton
-                    aria-label="Mark as done"
-                    color="success"
+      <div className={styles.suggestionsContainer}>
+        <Stack spacing={2}>
+          {pendingSuggestions.map((suggestion) => (
+            <Paper key={suggestion.id} className={styles.suggestionCard}>
+              <Stack spacing={2}>
+                <Typography variant="body2">{suggestion.content}</Typography>
+                <Stack direction="row" spacing={1} justifyContent="flex-end">
+                  <Button
                     onClick={() => handleMarkDone(suggestion.id)}
                     size="small"
+                    variant="outlined"
                   >
-                    <CheckCircle />
-                  </IconButton>
-                  <IconButton
-                    aria-label="Dismiss"
+                    Mark Complete
+                  </Button>
+                  <Button
                     color="error"
                     onClick={() => handleDismiss(suggestion.id)}
                     size="small"
+                    variant="outlined"
                   >
-                    <Close />
-                  </IconButton>
+                    Dismiss
+                  </Button>
                 </Stack>
               </Stack>
-            </UiCardContent>
-          </UiCard>
-        ))}
+            </Paper>
+          ))}
 
-        {doneSuggestions.length > 0 && (
-          <Stack spacing={1}>
-            <Typography color="text.secondary" variant="body2">
-              Completed ({doneSuggestions.length})
-            </Typography>
-            {doneSuggestions.map((suggestion) => (
-              <UiCard key={suggestion.id}>
-                <UiCardContent>
-                  <Stack direction="row" spacing={2} alignItems="flex-start">
-                    <Stack flex={1} spacing={1}>
-                      <Typography
-                        style={{ textDecoration: 'line-through', opacity: 0.6 }}
-                        variant="body2"
-                      >
-                        {suggestion.content}
-                      </Typography>
-                    </Stack>
-                    <IconButton aria-label="Mark as done" color="success" disabled size="small">
-                      <CheckCircle />
-                    </IconButton>
-                  </Stack>
-                </UiCardContent>
-              </UiCard>
-            ))}
-          </Stack>
-        )}
-      </Stack>
+          {doneSuggestions.length > 0 && (
+            <Stack spacing={1}>
+              <Typography color="text.secondary" variant="body2">
+                Completed ({doneSuggestions.length})
+              </Typography>
+              {doneSuggestions.map((suggestion) => (
+                <Paper key={suggestion.id} className={styles.completedSuggestionCard}>
+                  <Typography
+                    className={styles.completedText}
+                    variant="body2"
+                  >
+                    {suggestion.content}
+                  </Typography>
+                </Paper>
+              ))}
+            </Stack>
+          )}
+        </Stack>
+      </div>
 
       {onFeedbackChange && (
         <Stack spacing={1}>

@@ -6,8 +6,9 @@ const root = style({
 });
 
 const componentHeading = style({
-  fontWeight: 600,
-  marginBottom: '0.5rem',
+  fontWeight: 700,
+  marginBottom: '0.75rem',
+  marginTop: '0.5rem',
 });
 
 export { componentHeading, root };

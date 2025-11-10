@@ -24,11 +24,11 @@ function SessionDetailsSummary({
   aiSummaryFeedback,
   onFeedbackChange,
 }: SessionDetailsSummaryProps) {
+  const sortedComponents = aiSummary ? [...aiSummary].sort((a, b) => a.component_order - b.component_order) : [];
+
   if (!aiSummary || aiSummary.length === 0) {
     return null;
   }
-
-  const sortedComponents = [...aiSummary].sort((a, b) => a.component_order - b.component_order);
 
   return (
     <Stack className={styles.root} spacing={2}>
@@ -45,7 +45,7 @@ function SessionDetailsSummary({
             {sortedComponents.map((component, index) => (
               <div key={`${component.component_type}-${index}`}>
                 {sortedComponents.length > 1 && (
-                  <Typography className={styles.componentHeading} variant="subtitle2">
+                  <Typography className={styles.componentHeading} variant="h6">
                     {getComponentTitle(component.component_type)}
                   </Typography>
                 )}

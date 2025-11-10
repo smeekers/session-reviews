@@ -8,17 +8,5 @@ const whiteboardContainer = style({
   width: '100%',
 });
 
-const loadingContainer = style({
-  alignItems: 'center',
-  display: 'flex',
-  height: '400px',
-  justifyContent: 'center',
-  width: '100%',
-});
-
-const loadingText = style({
-  color: 'var(--theme-text-secondary)',
-});
-
-export { loadingContainer, loadingText, whiteboardContainer };
+export { whiteboardContainer };
 

@@ -1,12 +1,15 @@
 import '@excalidraw/excalidraw/index.css';
 import { useEffect, useRef, useState } from 'react';
 import { Excalidraw } from '@excalidraw/excalidraw';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error - Excalidraw types are not fully exported, but these work at runtime
 import type { ExcalidrawElement, ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types/types';
 import { createClient, type Room } from '@liveblocks/client';
 import { LiveblocksYjsProvider } from '@liveblocks/yjs';
 import * as Y from 'yjs';
 import { UndoManager } from 'yjs';
 import { ExcalidrawBinding, yjsToExcalidraw } from 'y-excalidraw';
+import Loading from '../loading';
 import * as styles from './index.css';
 
 interface WhiteboardProps {
@@ -30,6 +33,17 @@ function Whiteboard({ roomId, className }: WhiteboardProps) {
   const leaveRef = useRef<(() => void) | null>(null);
   const bindingRef = useRef<ExcalidrawBinding | null>(null);
 
+  const userColors = [
+    { color: '#30bced', light: '#30bced33' },
+    { color: '#6eeb83', light: '#6eeb8333' },
+    { color: '#ffbc42', light: '#ffbc4233' },
+    { color: '#ecd444', light: '#ecd44433' },
+    { color: '#ee6352', light: '#ee635233' },
+    { color: '#9ac2c9', light: '#9ac2c933' },
+    { color: '#8acb88', light: '#8acb8833' },
+    { color: '#1be7ff', light: '#1be7ff33' },
+  ];
+
   useEffect(() => {
     if (!roomId || !client) {
       return;
@@ -48,8 +62,8 @@ function Whiteboard({ roomId, className }: WhiteboardProps) {
 
     yjsProvider.once('sync', (synced: boolean) => {
       if (synced) {
-        const yElements = yDocRef.current.getArray('elements');
-        const elements = yjsToExcalidraw(yElements);
+        const yElements = yDocRef.current.getArray<Y.Map<unknown>>('elements');
+        const elements = yjsToExcalidraw(yElements as Y.Array<Y.Map<unknown>>);
         setInitialElements(elements);
         setIsLoading(false);
       }
@@ -82,16 +96,6 @@ function Whiteboard({ roomId, className }: WhiteboardProps) {
       return;
     }
 
-    const userColors = [
-      { color: '#30bced', light: '#30bced33' },
-      { color: '#6eeb83', light: '#6eeb8333' },
-      { color: '#ffbc42', light: '#ffbc4233' },
-      { color: '#ecd444', light: '#ecd44433' },
-      { color: '#ee6352', light: '#ee635233' },
-      { color: '#9ac2c9', light: '#9ac2c933' },
-      { color: '#8acb88', light: '#8acb8833' },
-      { color: '#1be7ff', light: '#1be7ff33' },
-    ];
     const userColor = userColors[Math.floor(Math.random() * userColors.length)];
 
     awareness.setLocalStateField('user', {
@@ -100,6 +104,7 @@ function Whiteboard({ roomId, className }: WhiteboardProps) {
       colorLight: userColor.light,
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (awareness as any).clientID = (awareness as any).doc.clientID;
 
     const undoManager = new UndoManager(yElements, {
@@ -134,9 +139,7 @@ function Whiteboard({ roomId, className }: WhiteboardProps) {
   if (isLoading) {
     return (
       <div className={className}>
-        <div className={styles.loadingContainer}>
-          <div className={styles.loadingText}>Loading whiteboard...</div>
-        </div>
+        <Loading message="Loading whiteboard..." />
       </div>
     );
   }
