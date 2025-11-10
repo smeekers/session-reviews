@@ -11,4 +11,8 @@ const componentHeading = style({
   marginTop: '0.5rem',
 });
 
-export { componentHeading, root };
+const componentContent = style({
+  whiteSpace: 'pre-line',
+});
+
+export { componentContent, componentHeading, root };

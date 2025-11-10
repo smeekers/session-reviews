@@ -17,15 +17,14 @@ function SessionDetails({ session }: SessionDetailsProps) {
   const { updateSummaryFeedback, updateSuggestionsFeedback } = useUpdateAIFeedback(session.uid);
   const { updateSuggestionStatus } = useUpdateSuggestionStatus(session.uid);
   const { updateSession } = useUpdateSession(session.uid);
-
-  // Update session status to 'reviewed' when viewing the details page (if it's completed)
-  useEffect(() => {
-    if (session.status === 'completed') {
-      updateSession({ status: 'reviewed' }).catch((err) => {
-        console.error('Failed to update session status to reviewed:', err);
+  const sessionDuration = useMemo(() => {
+    if (session?.startTime && session?.endTime) {
+      return formatDistanceStrict(new Date(session.startTime), new Date(session.endTime), {
+        unit: 'minute',
       });
     }
-  }, [session.status, session.uid, updateSession]);
+    return null;
+  }, [session]);
 
   async function handleSummaryFeedbackChange(feedback: 0 | 1) {
     try {
@@ -55,14 +54,13 @@ function SessionDetails({ session }: SessionDetailsProps) {
     await updateSession({ name });
   }
 
-  const sessionDuration = useMemo(() => {
-    if (session?.startTime && session?.endTime) {
-      return formatDistanceStrict(new Date(session.startTime), new Date(session.endTime), {
-        unit: 'minute',
+  useEffect(() => {
+    if (session.status === 'completed') {
+      updateSession({ status: 'reviewed' }).catch((err) => {
+        console.error('Failed to update session status to reviewed:', err);
       });
     }
-    return null;
-  }, [session]);
+  }, [session.status, session.uid, updateSession]);
 
   return (
     <Stack spacing={4}>

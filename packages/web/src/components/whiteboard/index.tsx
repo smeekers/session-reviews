@@ -13,15 +13,16 @@ import Loading from '../loading';
 import * as styles from './index.css';
 
 interface WhiteboardProps {
-  roomId: string;
   className?: string;
+  renderTopRightUI?: (isMobile: boolean, appState: unknown) => React.ReactElement | null;
+  roomId: string;
 }
 
 const client = createClient({
   publicApiKey: import.meta.env.VITE_LIVEBLOCKS_PUBLIC_KEY,
 });
 
-function Whiteboard({ roomId, className }: WhiteboardProps) {
+function Whiteboard({ className, renderTopRightUI, roomId }: WhiteboardProps) {
   const [excalidrawAPI, setExcalidrawAPI] = useState<ExcalidrawImperativeAPI | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [initialElements, setInitialElements] = useState<readonly ExcalidrawElement[]>([]);
@@ -138,18 +139,17 @@ function Whiteboard({ roomId, className }: WhiteboardProps) {
 
   if (isLoading) {
     return (
-      <div className={className} style={{ height: '100%', width: '100%' }}>
+      <div className={className ? `${className} ${styles.loadingWrapper}` : styles.loadingWrapper}>
         <Loading fullScreen={false} message="Loading whiteboard..." />
       </div>
     );
   }
 
   return (
-    <div className={className} style={{ height: '100%', width: '100%', display: 'flex' }}>
+    <div className={className ? `${className} ${styles.whiteboardWrapper}` : styles.whiteboardWrapper}>
       <div
         className={`${styles.whiteboardContainer} excalidraw-container`}
         ref={excalidrawRef}
-        style={{ height: '100%', width: '100%' }}
       >
         <Excalidraw
           excalidrawAPI={setExcalidrawAPI}
@@ -163,6 +163,7 @@ function Whiteboard({ roomId, className }: WhiteboardProps) {
               });
             }
           }}
+          renderTopRightUI={renderTopRightUI}
         />
       </div>
     </div>

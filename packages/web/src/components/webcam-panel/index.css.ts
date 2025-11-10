@@ -1,6 +1,7 @@
 import { style } from '@vanilla-extract/css';
 
 const root = style({
+  bottom: '1rem',
   display: 'flex',
   flexDirection: 'column',
   height: '20rem',
@@ -8,7 +9,6 @@ const root = style({
   padding: '1rem',
   position: 'fixed',
   right: '1rem',
-  top: '1rem',
   width: '20rem',
   zIndex: 1000,
 });
@@ -38,7 +38,7 @@ const errorContainer = style({
 });
 
 const bookmarkButtonContainer = style({
-  padding: '0.5rem 1rem 1rem',
+  padding: '0.5rem 1rem 0.5rem',
 });
 
 export { bookmarkButtonContainer, errorContainer, header, root, video, videoContainer };

@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
-import ActiveSessions from '../active-sessions';
-import PastSessions from '../past-sessions';
 import SessionBanner from '../session-banner';
-import SessionFilters from '../session-filters';
+import ActiveSessions from './components/active-sessions';
+import PastSessions from './components/past-sessions';
+import SessionFilters from './components/session-filters';
 import type { Session } from '../../types';
 
 interface SessionsHubProps {

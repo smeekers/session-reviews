@@ -105,13 +105,6 @@ function WebcamPanel({ getCurrentTime, isRecording = false, onStreamReady, sessi
               size="small"
             />
           )}
-          {!isAudioEnabled && (
-            <Chip
-              icon={<MicOff />}
-              label="Muted"
-              size="small"
-            />
-          )}
         </Stack>
         <Stack direction="row" spacing={0.5}>
           <IconButton onClick={handleToggleAudio} size="small">

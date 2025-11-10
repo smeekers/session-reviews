@@ -11,9 +11,10 @@ export async function seedStore(store: MemoryStore): Promise<void> {
 
   const now = new Date();
 
-  function daysAgo(days: number): Date {
+  function daysAgo(days: number, hoursOffset: number = 0, minutesOffset: number = 0): Date {
     const date = new Date(now);
     date.setDate(date.getDate() - days);
+    date.setHours(now.getHours() + hoursOffset, now.getMinutes() + minutesOffset, 0, 0);
     return date;
   }
 
@@ -100,15 +101,7 @@ export async function seedStore(store: MemoryStore): Promise<void> {
     })
   );
 
-  const processingStart = daysAgo(1);
-  const processingEnd = new Date(processingStart.getTime() + 25 * 60000);
-  await store.createSession(
-    createSession('session_003', 'processing', processingStart, processingEnd, {
-      hasBookmarks: true,
-    })
-  );
-
-  const completedStart = daysAgo(2);
+  const completedStart = daysAgo(2, -2, 15); // 2 days ago, 2 hours earlier, 15 minutes
   const completedEnd = new Date(completedStart.getTime() + 30 * 60000);
   await store.createSession(
     createSession('session_004', 'completed', completedStart, completedEnd, {
@@ -119,7 +112,7 @@ export async function seedStore(store: MemoryStore): Promise<void> {
     })
   );
 
-  const reviewedStart = daysAgo(3);
+  const reviewedStart = daysAgo(3, 1, 30); // 3 days ago, 1 hour later, 30 minutes
   const reviewedEnd = new Date(reviewedStart.getTime() + 20 * 60000);
   await store.createSession(
     createSession('session_005', 'reviewed', reviewedStart, reviewedEnd, {
@@ -131,7 +124,7 @@ export async function seedStore(store: MemoryStore): Promise<void> {
     })
   );
 
-  const completed2Start = daysAgo(4);
+  const completed2Start = daysAgo(4, -3, 45); // 4 days ago, 3 hours earlier, 45 minutes
   const completed2End = new Date(completed2Start.getTime() + 35 * 60000);
   await store.createSession(
     createSession('session_006', 'completed', completed2Start, completed2End, {
@@ -141,7 +134,7 @@ export async function seedStore(store: MemoryStore): Promise<void> {
     })
   );
 
-  const reviewed2Start = daysAgo(5);
+  const reviewed2Start = daysAgo(5, 2, 0); // 5 days ago, 2 hours later
   const reviewed2End = new Date(reviewed2Start.getTime() + 18 * 60000);
   await store.createSession(
     createSession('session_007', 'reviewed', reviewed2Start, reviewed2End, {
@@ -153,20 +146,12 @@ export async function seedStore(store: MemoryStore): Promise<void> {
     })
   );
 
-  const completed3Start = daysAgo(6);
+  const completed3Start = daysAgo(6, -1, 20); // 6 days ago, 1 hour earlier, 20 minutes
   const completed3End = new Date(completed3Start.getTime() + 45 * 60000);
   await store.createSession(
     createSession('session_008', 'completed', completed3Start, completed3End, {
       hasSummary: true,
       hasSuggestions: true,
-      hasBookmarks: true,
-    })
-  );
-
-  const processing2Start = daysAgo(0.5);
-  const processing2End = new Date(processing2Start.getTime() + 22 * 60000);
-  await store.createSession(
-    createSession('session_009', 'processing', processing2Start, processing2End, {
       hasBookmarks: true,
     })
   );

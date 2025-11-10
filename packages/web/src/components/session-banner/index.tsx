@@ -28,18 +28,27 @@ function SessionBanner() {
   return (
     <Alert
       action={
-        actionButton ? (
+        <div className={styles.actionContainer}>
+          {actionButton && (
+            <Button
+              onClick={() => handleAction(actionButton.route)}
+              size="small"
+              variant="contained"
+            >
+              {actionButton.label}
+            </Button>
+          )}
           <Button
-            onClick={() => handleAction(actionButton.route)}
+            className={styles.closeButton}
+            onClick={handleDismiss}
             size="small"
-            variant="contained"
+            variant="text"
           >
-            {actionButton.label}
+            Dismiss
           </Button>
-        ) : undefined
+        </div>
       }
       className={styles.banner}
-      onClose={handleDismiss}
       severity={config.severity}
     >
       {config.message}

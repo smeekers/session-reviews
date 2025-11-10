@@ -1,5 +1,5 @@
 import { Stack, Typography } from '../../../../ui-library';
-import AIFeedbackControls from '../../../../components/ai-feedback-controls';
+import AIFeedbackSection from '../../../../components/ai-feedback-section';
 import SuggestionCard from '../../../../components/suggestion-card';
 import type { AISuggestion, AISummaryComponent } from '../../../../types';
 import * as styles from './index.css';
@@ -87,15 +87,11 @@ function SessionDetailsAISuggestions({
       </div>
 
       {onFeedbackChange && (
-        <Stack spacing={1}>
-          <Typography color="text.secondary" variant="body2">
-            Was this list helpful?
-          </Typography>
-          <AIFeedbackControls
-            feedback={aiSuggestionsFeedback}
-            onFeedbackChange={onFeedbackChange}
-          />
-        </Stack>
+        <AIFeedbackSection
+          feedback={aiSuggestionsFeedback}
+          onFeedbackChange={onFeedbackChange}
+          question="Was this list helpful?"
+        />
       )}
     </Stack>
   );

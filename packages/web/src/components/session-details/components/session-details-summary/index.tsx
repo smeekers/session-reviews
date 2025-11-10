@@ -1,5 +1,5 @@
 import { Stack, Typography, UiCard, UiCardContent } from '../../../../ui-library';
-import AIFeedbackControls from '../../../../components/ai-feedback-controls';
+import AIFeedbackSection from '../../../../components/ai-feedback-section';
 import type { AISummaryComponent } from '../../../../types';
 import * as styles from './index.css';
 
@@ -51,16 +51,17 @@ function SessionDetailsSummary({
                     {getComponentTitle(component.component_type)}
                   </Typography>
                 )}
-                <Typography variant="body2" style={{ whiteSpace: 'pre-line' }}>
+                <Typography className={styles.componentContent} variant="body2">
                   {component.content}
                 </Typography>
               </div>
             ))}
 
             {onFeedbackChange && (
-              <AIFeedbackControls
+              <AIFeedbackSection
                 feedback={aiSummaryFeedback}
                 onFeedbackChange={onFeedbackChange}
+                question="Was this helpful?"
               />
             )}
           </Stack>
