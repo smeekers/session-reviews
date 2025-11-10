@@ -1,18 +1,26 @@
 import { useEffect, useRef, useState } from 'react';
-import { Videocam, VideocamOff } from '@mui/icons-material';
-import { IconButton, Paper, Stack, Typography } from '../../ui-library';
+import { FiberManualRecord, Mic, MicOff, Videocam, VideocamOff } from '@mui/icons-material';
+import { IconButton, Paper, Stack, Typography, Chip } from '../../ui-library';
+import AddBookmarkButton from '../add-bookmark-button';
 import * as styles from './index.css';
 
 interface WebcamPanelProps {
+  getCurrentTime?: () => number;
+  isRecording?: boolean;
   onStreamReady?: (stream: MediaStream | null) => void;
+  sessionUid?: string;
 }
 
-function WebcamPanel({ onStreamReady }: WebcamPanelProps) {
+function WebcamPanel({ getCurrentTime, isRecording = false, onStreamReady, sessionUid }: WebcamPanelProps) {
+  // Variable definitions
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const onStreamReadyRef = useRef(onStreamReady);
   const [isVideoEnabled, setIsVideoEnabled] = useState(true);
+  const [isAudioEnabled, setIsAudioEnabled] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Functions
   function handleToggleVideo() {
     if (streamRef.current) {
       const videoTracks = streamRef.current.getVideoTracks();
@@ -22,6 +30,21 @@ function WebcamPanel({ onStreamReady }: WebcamPanelProps) {
       setIsVideoEnabled(!isVideoEnabled);
     }
   }
+
+  function handleToggleAudio() {
+    if (streamRef.current) {
+      const audioTracks = streamRef.current.getAudioTracks();
+      audioTracks.forEach((track) => {
+        track.enabled = !isAudioEnabled;
+      });
+      setIsAudioEnabled(!isAudioEnabled);
+    }
+  }
+
+  // useEffects
+  useEffect(() => {
+    onStreamReadyRef.current = onStreamReady;
+  }, [onStreamReady]);
 
   useEffect(() => {
     async function startWebcam() {
@@ -37,12 +60,12 @@ function WebcamPanel({ onStreamReady }: WebcamPanelProps) {
           videoRef.current.srcObject = stream;
         }
 
-        onStreamReady?.(stream);
+        onStreamReadyRef.current?.(stream);
         setError(null);
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Failed to access webcam';
         setError(message);
-        onStreamReady?.(null);
+        onStreamReadyRef.current?.(null);
       }
     }
 
@@ -54,8 +77,9 @@ function WebcamPanel({ onStreamReady }: WebcamPanelProps) {
         streamRef.current = null;
       }
     };
-  }, [onStreamReady]);
+  }, []);
 
+  // Renders/returns
   if (error) {
     return (
       <Paper className={styles.root}>
@@ -72,10 +96,31 @@ function WebcamPanel({ onStreamReady }: WebcamPanelProps) {
   return (
     <Paper className={styles.root}>
       <Stack className={styles.header} direction="row" justifyContent="space-between">
-        <Typography variant="subtitle2">Camera</Typography>
-        <IconButton onClick={handleToggleVideo} size="small">
-          {isVideoEnabled ? <Videocam /> : <VideocamOff />}
-        </IconButton>
+        <Stack direction="row" spacing={1}>
+          {isRecording && (
+            <Chip
+              color="error"
+              icon={<FiberManualRecord />}
+              label="Recording"
+              size="small"
+            />
+          )}
+          {!isAudioEnabled && (
+            <Chip
+              icon={<MicOff />}
+              label="Muted"
+              size="small"
+            />
+          )}
+        </Stack>
+        <Stack direction="row" spacing={0.5}>
+          <IconButton onClick={handleToggleAudio} size="small">
+            {isAudioEnabled ? <Mic /> : <MicOff />}
+          </IconButton>
+          <IconButton onClick={handleToggleVideo} size="small">
+            {isVideoEnabled ? <Videocam /> : <VideocamOff />}
+          </IconButton>
+        </Stack>
       </Stack>
       <div className={styles.videoContainer}>
         <video
@@ -86,9 +131,17 @@ function WebcamPanel({ onStreamReady }: WebcamPanelProps) {
           ref={videoRef}
         />
       </div>
+      {getCurrentTime && sessionUid && (
+        <Stack className={styles.bookmarkButtonContainer} spacing={1}>
+          <AddBookmarkButton
+            disabled={!isRecording}
+            getCurrentTime={getCurrentTime}
+            sessionUid={sessionUid}
+          />
+        </Stack>
+      )}
     </Paper>
   );
 }
 
 export default WebcamPanel;
-

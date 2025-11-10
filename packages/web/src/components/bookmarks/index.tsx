@@ -10,10 +10,12 @@ import * as styles from './index.css';
 interface BookmarksProps {
   bookmarks?: Bookmark[];
   sessionUid: string;
-  videoPlayerRef: React.RefObject<VideoPlayerRef | null>;
+  videoPlayerRef?: React.RefObject<VideoPlayerRef | null>;
+  getCurrentTime?: () => number;
+  disabled?: boolean;
 }
 
-function Bookmarks({ bookmarks = [], sessionUid, videoPlayerRef }: BookmarksProps) {
+function Bookmarks({ bookmarks = [], sessionUid, videoPlayerRef, getCurrentTime, disabled = false }: BookmarksProps) {
   const { addBookmark } = useAddBookmark(sessionUid);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [note, setNote] = useState('');
@@ -24,8 +26,15 @@ function Bookmarks({ bookmarks = [], sessionUid, videoPlayerRef }: BookmarksProp
   }, [bookmarks]);
 
   function handleAddBookmarkClick() {
-    if (videoPlayerRef.current) {
-      const timestamp = Math.floor(videoPlayerRef.current.getCurrentTime());
+    let timestamp: number | null = null;
+    
+    if (getCurrentTime) {
+      timestamp = Math.floor(getCurrentTime());
+    } else if (videoPlayerRef?.current) {
+      timestamp = Math.floor(videoPlayerRef.current.getCurrentTime());
+    }
+    
+    if (timestamp !== null) {
       setPendingTimestamp(timestamp);
       setDialogOpen(true);
     }
@@ -52,7 +61,7 @@ function Bookmarks({ bookmarks = [], sessionUid, videoPlayerRef }: BookmarksProp
   }
 
   function handleBookmarkClick(bookmark: Bookmark) {
-    if (videoPlayerRef.current) {
+    if (videoPlayerRef?.current) {
       videoPlayerRef.current.seekTo(bookmark.timestamp, 'seconds');
     }
   }
@@ -64,6 +73,7 @@ function Bookmarks({ bookmarks = [], sessionUid, videoPlayerRef }: BookmarksProp
           <Typography variant="h6">Bookmarks</Typography>
           <Button
             className={styles.addButton}
+            disabled={disabled}
             onClick={handleAddBookmarkClick}
             size="small"
             startIcon={<Add />}

@@ -37,5 +37,9 @@ const errorContainer = style({
   minHeight: '10rem',
 });
 
-export { errorContainer, header, root, video, videoContainer };
+const bookmarkButtonContainer = style({
+  padding: '0.5rem 1rem 1rem',
+});
+
+export { bookmarkButtonContainer, errorContainer, header, root, video, videoContainer };
 

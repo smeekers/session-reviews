@@ -138,8 +138,8 @@ function Whiteboard({ roomId, className }: WhiteboardProps) {
 
   if (isLoading) {
     return (
-      <div className={className}>
-        <Loading message="Loading whiteboard..." />
+      <div className={className} style={{ height: '100%', width: '100%' }}>
+        <Loading fullScreen={false} message="Loading whiteboard..." />
       </div>
     );
   }

@@ -8,5 +8,13 @@ const container = style({
   width: '100%',
 });
 
-export { container };
+const containerInline = style({
+  alignItems: 'center',
+  display: 'flex',
+  height: '100%',
+  justifyContent: 'center',
+  width: '100%',
+});
+
+export { container, containerInline };
 

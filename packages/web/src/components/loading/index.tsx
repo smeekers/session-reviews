@@ -2,12 +2,13 @@ import { CircularProgress, Stack, Typography } from '../../ui-library';
 import * as styles from './index.css';
 
 interface LoadingProps {
+  fullScreen?: boolean;
   message?: string;
 }
 
-function Loading({ message }: LoadingProps) {
+function Loading({ fullScreen = true, message }: LoadingProps) {
   return (
-    <div className={styles.container}>
+    <div className={fullScreen ? styles.container : styles.containerInline}>
       <Stack alignItems="center" spacing={2}>
         <CircularProgress />
         {message && (

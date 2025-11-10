@@ -3,9 +3,12 @@
 ## Things for Demo
 
 - [x] Session details page should render a session details component and that component folder should have its own components folder with the session details specific components in it to keep things cleaner. This goes the same for most other pages
-- [ ] On session details page view the session status should be updated to reviewed
-- [ ] On the live session page we should be able to add bookmarks as long as its currently recording
-- [ ] On the live session page the webcam panel can toggle video, it needs to toggle audio as well
+- [ ] there are number of places we are using in line styles. WE should never be doing that. Use classnames if we need to add to an existing className
+- [x] Whiteboard loading renders on the left instead of centre. But we need to be careful not to break the other users of loading
+- [x] On session details page view the session status should be updated to reviewed
+- [ ] On session details page the summary should have the same Was this list helpful? above the feedback as the suggestions do (this should be DRY as well)
+- [x] On the live session page we should be able to add bookmarks as long as its currently recording
+- [x] On the live session page the webcam panel can toggle video, it needs to toggle audio as well
 - [ ] On the live session page should have a share session button that copies a link to the whiteboard page to the clipboard and should give some indication it happened (probabl just button its self temporarily says "link copied to clipboard")
 - [ ] The webcam panel should have an audio indicator
 - [ ] Webcam panel needs a recording indicator
@@ -19,7 +22,8 @@
 *(Discussion points - do not work on these)*
 
 - Put more thought into UI. Theme and the ui library will help make this easy to change wholesale
-- 
+- lean heavier into theme
+- we should not be fetching all sessions at once, add pagination
 - Get recordings working
 - Upload to S3
 - Use Dynamo table
@@ -27,6 +31,6 @@
 - Actual AI interaction (need to craft prompt and turn prompt into json. Reject and retry logic)
 - We need more filters and a sort option
 - Consider the actual value of the UI library as opposed to just using MUI directly. These can mostly be handled via theme overrides
-- Users
+- add users
 - 
 

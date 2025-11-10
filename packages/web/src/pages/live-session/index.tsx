@@ -1,3 +1,4 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Typography } from '../../ui-library';
 import Whiteboard from '../../components/whiteboard';
 import WebcamPanel from '../../components/webcam-panel';
@@ -18,6 +19,34 @@ function LiveSession() {
     handleEndSession,
     handleStreamReady,
   } = useLiveSession({ sessionUid: sessionUid || '' });
+  const [recordingStartTime, setRecordingStartTime] = useState<number | null>(null);
+  const streamReadyRef = useRef(handleStreamReady);
+
+  // Update ref when handleStreamReady changes
+  useEffect(() => {
+    streamReadyRef.current = handleStreamReady;
+  }, [handleStreamReady]);
+
+  // Memoize the callback to prevent re-renders
+  const onStreamReady = useCallback((stream: MediaStream | null) => {
+    streamReadyRef.current(stream);
+  }, []);
+
+  // Track recording start time
+  useEffect(() => {
+    if (isRecording && !recordingStartTime) {
+      setRecordingStartTime(Date.now());
+    } else if (!isRecording) {
+      setRecordingStartTime(null);
+    }
+  }, [isRecording, recordingStartTime]);
+
+  function getCurrentRecordingTime(): number {
+    if (!recordingStartTime) {
+      return 0;
+    }
+    return Math.floor((Date.now() - recordingStartTime) / 1000);
+  }
 
   if (loading) {
     return <Loading message="Loading session..." />;
@@ -35,7 +64,12 @@ function LiveSession() {
     <div className={styles.container}>
       <Whiteboard className={styles.whiteboard} roomId={sessionUid || ''} />
 
-      <WebcamPanel onStreamReady={handleStreamReady} />
+      <WebcamPanel
+        getCurrentTime={getCurrentRecordingTime}
+        isRecording={isRecording}
+        onStreamReady={onStreamReady}
+        sessionUid={sessionUid || ''}
+      />
 
       <RecordingControls
         error={recordingError}

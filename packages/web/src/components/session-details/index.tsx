@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { format, formatDistanceStrict } from 'date-fns';
 import { Stack, Typography } from '../../ui-library';
 import { useUpdateAIFeedback, useUpdateSession, useUpdateSuggestionStatus } from '../../hooks';
@@ -17,6 +17,15 @@ function SessionDetails({ session }: SessionDetailsProps) {
   const { updateSummaryFeedback, updateSuggestionsFeedback } = useUpdateAIFeedback(session.uid);
   const { updateSuggestionStatus } = useUpdateSuggestionStatus(session.uid);
   const { updateSession } = useUpdateSession(session.uid);
+
+  // Update session status to 'reviewed' when viewing the details page (if it's completed)
+  useEffect(() => {
+    if (session.status === 'completed') {
+      updateSession({ status: 'reviewed' }).catch((err) => {
+        console.error('Failed to update session status to reviewed:', err);
+      });
+    }
+  }, [session.status, session.uid, updateSession]);
 
   async function handleSummaryFeedbackChange(feedback: 0 | 1) {
     try {
