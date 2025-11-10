@@ -5,6 +5,13 @@ const root = style({
   flexDirection: 'column',
 });
 
+const headerContainer = style({
+  alignItems: 'center',
+  display: 'flex',
+  flexWrap: 'wrap',
+  gap: '1rem',
+});
+
 const whiteboardContainer = style({
   height: '37.5rem',
   minHeight: '37.5rem',
@@ -12,4 +19,8 @@ const whiteboardContainer = style({
   padding: 0,
 });
 
-export { root, whiteboardContainer };
+const viewButton = style({
+  borderRadius: '0.5rem',
+});
+
+export { headerContainer, root, viewButton, whiteboardContainer };

@@ -37,5 +37,9 @@ const dialogContent = style({
   paddingTop: '1rem',
 });
 
-export { bookmarkItem, bookmarksHeader, bookmarksSection, dialogContent };
+const addButton = style({
+  borderRadius: '0.5rem',
+});
+
+export { addButton, bookmarkItem, bookmarksHeader, bookmarksSection, dialogContent };
 

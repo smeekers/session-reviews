@@ -9,10 +9,14 @@ interface Bookmark {
 
 type AISuggestionStatus = 'pending' | 'done' | 'dismissed';
 
+type AISuggestionType = 'task' | 'feedback' | 'idea';
+
 interface AISuggestion {
   id: string;
+  title: string;
   content: string;
   status: AISuggestionStatus;
+  type: AISuggestionType;
   createdAt: string;
 }
 
@@ -20,7 +24,7 @@ interface AISummaryComponent {
   component_type: string;
   component_order: number;
   content: string;
-  content_details?: unknown;
+  content_details?: AISuggestion[] | unknown;
 }
 
 interface Session {
@@ -41,4 +45,4 @@ interface Session {
   updatedAt: string;
 }
 
-export type { AISuggestion, AISuggestionStatus, AISummaryComponent, Bookmark, Session, SessionStatus };
+export type { AISuggestion, AISuggestionStatus, AISuggestionType, AISummaryComponent, Bookmark, Session, SessionStatus };

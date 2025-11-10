@@ -3,7 +3,7 @@ import multer from 'multer';
 import { z } from 'zod';
 import { MOCK_VIDEO_URL } from '../constants/video';
 import { store } from '../data';
-import { generateMockSummary, generateMockSuggestions, generateMockTranscript } from '../lib/mock-ai';
+import { generateMockSummary, generateMockTranscript } from '../lib/mock-ai';
 import type { AISuggestion, AISummaryComponent } from '../data/memory-store';
 
 export const sessionsRouter = Router();
@@ -330,29 +330,23 @@ sessionsRouter.post('/:uid/end', upload.single('recording'), async (req, res) =>
     await delay(8000);
     const transcript = generateMockTranscript();
 
-    // Step 4: Generate AI summary (mock)
+    // Step 4: Generate AI summary (mock) - includes suggestions as a component
     await delay(8000);
     const aiSummary: AISummaryComponent[] = generateMockSummary();
 
-    // Step 5: Generate AI suggestions (mock)
-    await delay(4000);
-    const mockSuggestions: Omit<AISuggestion, 'id' | 'createdAt'>[] = generateMockSuggestions(5);
-    const aiSuggestions: AISuggestion[] = mockSuggestions.map((suggestion, idx) => {
-      return {
-        content: suggestion.content,
-        status: suggestion.status,
-        id: `suggestion_${req.params.uid}_${idx + 1}`,
-        createdAt: new Date().toISOString(),
-      };
-    });
+    // Extract suggestions from summary for backward compatibility
+    const suggestionsComponent = aiSummary.find((c) => c.component_type === 'suggestions');
+    const aiSuggestions = Array.isArray(suggestionsComponent?.content_details)
+      ? (suggestionsComponent.content_details as AISuggestion[])
+      : [];
 
-    // Step 6: Mark as completed with all data
+    // Step 5: Mark as completed with all data
     const completedSession = await store.updateSession(req.params.uid, {
       status: 'completed',
       videoUrl,
       transcript,
       aiSummary,
-      aiSuggestions,
+      aiSuggestions, // Keep for backward compatibility
     });
 
     res.json(completedSession);

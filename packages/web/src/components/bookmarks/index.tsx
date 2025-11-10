@@ -63,10 +63,11 @@ function Bookmarks({ bookmarks = [], sessionUid, videoPlayerRef }: BookmarksProp
         <Stack className={styles.bookmarksHeader} direction="row" justifyContent="space-between">
           <Typography variant="h6">Bookmarks</Typography>
           <Button
+            className={styles.addButton}
             onClick={handleAddBookmarkClick}
             size="small"
             startIcon={<Add />}
-            variant="outlined"
+            variant="contained"
           >
             Add
           </Button>

@@ -1,7 +1,7 @@
 import { MOCK_VIDEO_URL } from '../constants/video';
-import { generateMockSummary, generateMockSuggestions, generateMockTranscript } from '../lib/mock-ai';
+import { generateMockSummary, generateMockTranscript } from '../lib/mock-ai';
 import { MemoryStore } from './memory-store';
-import type { AISuggestion, Bookmark, Session } from './memory-store';
+import type { AISuggestion, AISummaryComponent, Bookmark, Session } from './memory-store';
 
 /**
  * Seed the memory store with mock data for local development
@@ -55,12 +55,13 @@ export async function seedStore(store: MemoryStore): Promise<void> {
         ]
       : [];
 
-    const aiSuggestions: AISuggestion[] = options?.hasSuggestions
-      ? generateMockSuggestions(Math.floor(Math.random() * 3) + 3).map((suggestion, idx) => ({
-          id: `suggestion_${uid}_${idx + 1}`,
-          content: suggestion.content,
+    // Extract suggestions from summary if it exists
+    const aiSummary = endTime && options?.hasSummary ? generateMockSummary() : undefined;
+    const suggestionsComponent = aiSummary?.find((c) => c.component_type === 'suggestions');
+    const aiSuggestions: AISuggestion[] = options?.hasSuggestions && Array.isArray(suggestionsComponent?.content_details)
+      ? (suggestionsComponent.content_details as AISuggestion[]).map((suggestion, idx) => ({
+          ...suggestion,
           status: (idx === 0 ? 'done' : idx === 1 ? 'dismissed' : 'pending') as AISuggestion['status'],
-          createdAt: endTime ? new Date(endTime.getTime() + idx * 60000).toISOString() : new Date().toISOString(),
         }))
       : [];
 
@@ -69,7 +70,7 @@ export async function seedStore(store: MemoryStore): Promise<void> {
       name: options?.name,
       videoUrl: options?.videoUrl || (endTime ? MOCK_VIDEO_URL : undefined),
       transcript: endTime && options?.hasSummary ? generateMockTranscript() : undefined,
-      aiSummary: endTime && options?.hasSummary ? generateMockSummary() : undefined,
+      aiSummary,
       aiSummaryFeedback: options?.summaryFeedback,
       aiSuggestions: endTime && options?.hasSuggestions ? aiSuggestions : undefined,
       aiSuggestionsFeedback: options?.suggestionsFeedback,

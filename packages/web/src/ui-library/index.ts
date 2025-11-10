@@ -1,7 +1,7 @@
 export { default as Alert } from './alert';
 export { default as Breadcrumbs } from './breadcrumbs';
 export { default as Button } from './button';
-export { UiCard, UiCardActionArea, UiCardContent } from './card';
+export { UiCard, UiCardActionArea, UiCardActions, UiCardContent } from './card';
 export { default as Checkbox } from './checkbox';
 export { default as Chip } from './chip';
 export { default as CircularProgress } from './circular-progress';
@@ -26,7 +26,7 @@ export { default as Typography } from './typography';
 export type { AlertProps } from './alert';
 export type { BreadcrumbsProps } from './breadcrumbs';
 export type { ButtonProps } from './button';
-export type { CardProps, CardActionAreaProps, CardContentProps } from './card';
+export type { CardProps, CardActionAreaProps, CardActionsProps, CardContentProps } from './card';
 export type { CheckboxProps } from './checkbox';
 export type { ChipProps } from './chip';
 export type { CircularProgressProps } from './circular-progress';

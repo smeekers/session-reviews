@@ -5,6 +5,8 @@ export type SessionStatus = 'ready' | 'in-progress' | 'processing' | 'completed'
 
 export type AISuggestionStatus = 'pending' | 'done' | 'dismissed';
 
+export type AISuggestionType = 'task' | 'feedback' | 'idea';
+
 export interface Bookmark {
   id: string;
   timestamp: number;
@@ -14,8 +16,10 @@ export interface Bookmark {
 
 export interface AISuggestion {
   id: string;
+  title: string;
   content: string;
   status: AISuggestionStatus;
+  type: AISuggestionType;
   createdAt: string;
 }
 
@@ -23,7 +27,7 @@ export interface AISummaryComponent {
   component_type: string;
   component_order: number;
   content: string;
-  content_details?: unknown;
+  content_details?: AISuggestion[] | unknown;
 }
 
 export interface Session {
@@ -182,16 +186,35 @@ export class MemoryStore {
       return undefined;
     }
 
-    const suggestions = session.aiSuggestions || [];
-    const suggestionIndex = suggestions.findIndex((s) => s.id === suggestionId);
-    if (suggestionIndex === -1) {
+    let updated: AISuggestion | undefined;
+
+    // Update in summary (preferred location)
+    if (session.aiSummary) {
+      const suggestionsComponent = session.aiSummary.find((c) => c.component_type === 'suggestions');
+      if (suggestionsComponent && Array.isArray(suggestionsComponent.content_details)) {
+        const suggestions = suggestionsComponent.content_details as AISuggestion[];
+        const suggestionIndex = suggestions.findIndex((s) => s.id === suggestionId);
+        if (suggestionIndex !== -1) {
+          updated = { ...suggestions[suggestionIndex], status };
+          suggestions[suggestionIndex] = updated;
+          suggestionsComponent.content_details = suggestions;
+        }
+      }
+    }
+
+    // Also update in legacy aiSuggestions field for backward compatibility
+    const legacySuggestions = session.aiSuggestions || [];
+    const legacySuggestionIndex = legacySuggestions.findIndex((s) => s.id === suggestionId);
+    if (legacySuggestionIndex !== -1) {
+      updated = { ...legacySuggestions[legacySuggestionIndex], status };
+      legacySuggestions[legacySuggestionIndex] = updated;
+    }
+
+    if (!updated) {
       return undefined;
     }
 
-    const updated = { ...suggestions[suggestionIndex], status };
-    suggestions[suggestionIndex] = updated;
-
-    await this.updateSession(sessionUid, { aiSuggestions: suggestions });
+    await this.updateSession(sessionUid, { aiSummary: session.aiSummary, aiSuggestions: legacySuggestions });
     return updated;
   }
 }

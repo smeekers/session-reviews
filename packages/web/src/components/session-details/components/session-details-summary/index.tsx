@@ -1,6 +1,6 @@
-import { Stack, Typography, UiCard, UiCardContent } from '../../ui-library';
-import AIFeedbackControls from '../ai-feedback-controls';
-import type { AISummaryComponent } from '../../types';
+import { Stack, Typography, UiCard, UiCardContent } from '../../../../ui-library';
+import AIFeedbackControls from '../../../../components/ai-feedback-controls';
+import type { AISummaryComponent } from '../../../../types';
 import * as styles from './index.css';
 
 interface SessionDetailsSummaryProps {
@@ -24,9 +24,11 @@ function SessionDetailsSummary({
   aiSummaryFeedback,
   onFeedbackChange,
 }: SessionDetailsSummaryProps) {
-  const sortedComponents = aiSummary ? [...aiSummary].sort((a, b) => a.component_order - b.component_order) : [];
+  // Filter out suggestions component - it's displayed separately
+  const filteredComponents = aiSummary?.filter((c) => c.component_type !== 'suggestions') ?? [];
+  const sortedComponents = filteredComponents.sort((a, b) => a.component_order - b.component_order);
 
-  if (!aiSummary || aiSummary.length === 0) {
+  if (!aiSummary || filteredComponents.length === 0) {
     return null;
   }
 

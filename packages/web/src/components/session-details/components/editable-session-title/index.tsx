@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Edit } from '@mui/icons-material';
-import { TextField, Typography } from '../../ui-library';
+import { TextField, Typography } from '../../../../ui-library';
 import * as styles from './index.css';
 
 interface EditableSessionTitleProps {
