@@ -1,4 +1,4 @@
-import { useMemo, useCallback } from 'react';
+import { useMemo } from 'react';
 import * as styles from './index.css';
 import { AccessTime, CalendarToday } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
@@ -27,8 +27,8 @@ function SessionCard({ session }: SessionCardProps) {
   const navigate = useNavigate();
 
   const { formattedDate, formattedTime } = useMemo(() => {
-    const startDate = session.startTime ? new Date(session.startTime) : new Date(session.createdAt);
-    const formattedDateTime = formatSessionDateTime(startDate);
+  const startDate = session.startTime ? new Date(session.startTime) : new Date(session.createdAt);
+  const formattedDateTime = formatSessionDateTime(startDate);
     const [date, time] = formattedDateTime.split(' • ');
     return { formattedDate: date, formattedTime: time };
   }, [session.startTime, session.createdAt]);
@@ -42,7 +42,7 @@ function SessionCard({ session }: SessionCardProps) {
 
   const summaryText = useMemo(() => getSummaryText(session), [session]);
 
-  const handleClick = useCallback(() => {
+  function handleClick() {
     if (session.status === 'ready') {
       navigate(ROUTES.LIVE_SESSION(session.uid));
     } else if (session.status === 'in-progress' || session.status === 'processing') {
@@ -50,17 +50,14 @@ function SessionCard({ session }: SessionCardProps) {
     } else {
       navigate(ROUTES.SESSION_DETAILS(session.uid));
     }
-  }, [session.status, session.uid, navigate]);
+  }
 
-  const handleKeyDown = useCallback(
-    (event: React.KeyboardEvent) => {
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault();
-        handleClick();
-      }
-    },
-    [handleClick]
-  );
+  function handleKeyDown(event: React.KeyboardEvent) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      handleClick();
+    }
+  }
 
   return (
     <UiCard className={styles.root} data-testid="session-card">

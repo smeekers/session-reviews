@@ -26,7 +26,7 @@ function SessionDetailsSummary({
   aiSummaryFeedback,
   onFeedbackChange,
 }: SessionDetailsSummaryProps) {
-  // Filter out suggestions component - it's displayed separately
+
   const filteredComponents = useMemo(
     () => aiSummary?.filter((c) => c.component_type !== 'suggestions') ?? [],
     [aiSummary]

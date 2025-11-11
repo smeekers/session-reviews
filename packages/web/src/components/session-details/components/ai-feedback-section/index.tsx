@@ -9,6 +9,7 @@ interface AIFeedbackSectionProps {
 }
 
 function AIFeedbackSection({ feedback, onFeedbackChange, question = AI_FEEDBACK_STRINGS.QUESTION }: AIFeedbackSectionProps) {
+
   return (
     <Stack spacing={1}>
       <Typography color="text.secondary" variant="body2">

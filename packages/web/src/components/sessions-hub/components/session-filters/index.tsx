@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useAtom } from 'jotai';
 import { ExpandMore, ExpandLess } from '@mui/icons-material';
 import { COMMON_STRINGS } from '../../../../constants';
@@ -21,17 +21,23 @@ function SessionFilters() {
     setAnchorEl(null);
   }
 
-  function handleStatusToggle(status: SessionStatus, event: React.MouseEvent) {
-    event.preventDefault();
-    event.stopPropagation();
-    setStatusFilter((prev) => ({
-      ...prev,
-      [status]: !prev[status],
-    }));
+  function handleStatusToggle(status: SessionStatus) {
+    return (event: React.MouseEvent) => {
+      event.preventDefault();
+      event.stopPropagation();
+      setStatusFilter((prev) => ({
+        ...prev,
+        [status]: !prev[status],
+      }));
+    };
   }
 
-  const checkedCount = Object.values(statusFilter).filter(Boolean).length;
-  const allChecked = checkedCount === statusOptions.length;
+  const checkedCount = useMemo(
+    () => Object.values(statusFilter).filter(Boolean).length,
+    [statusFilter]
+  );
+
+  const allChecked = useMemo(() => checkedCount === statusOptions.length, [checkedCount]);
 
   return (
     <Stack className={styles.root} direction="row" spacing={2}>
@@ -59,7 +65,7 @@ function SessionFilters() {
         {statusOptions.map((option) => (
           <MenuItem
             key={option.value}
-            onClick={(e) => handleStatusToggle(option.value, e)}
+            onClick={handleStatusToggle(option.value)}
             onMouseDown={(e) => e.preventDefault()}
           >
             <Checkbox

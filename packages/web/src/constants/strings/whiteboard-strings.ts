@@ -3,7 +3,7 @@
  */
 
 export const WHITEBOARD_STRINGS = {
-  SHARE_SESSION: 'Share Session',
+  SHARE_SESSION: 'Share',
   LINK_COPIED: 'Link copied to clipboard',
   START_RECORDING: 'Start Recording',
   END_SESSION: 'End Session',

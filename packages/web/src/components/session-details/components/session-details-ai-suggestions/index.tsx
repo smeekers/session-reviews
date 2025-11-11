@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { SESSION_STRINGS } from '../../../../constants';
 import { Stack, Typography } from '../../../../ui-library';
 import AIFeedbackSection from '../ai-feedback-section';
@@ -21,12 +22,25 @@ function SessionDetailsAISuggestions({
   onFeedbackChange,
 }: SessionDetailsAISuggestionsProps) {
   // Extract suggestions from summary (preferred) or use legacy aiSuggestions prop
-  const suggestionsComponent = aiSummary?.find((c) => c.component_type === 'suggestions');
-  const allSuggestions: AISuggestion[] = suggestionsComponent?.content_details ?? aiSuggestions ?? [];
+  const allSuggestions: AISuggestion[] = useMemo(() => {
+    const suggestionsComponent = aiSummary?.find((c) => c.component_type === 'suggestions');
+    return suggestionsComponent?.content_details ?? aiSuggestions ?? [];
+  }, [aiSummary, aiSuggestions]);
 
-  const visibleSuggestions = allSuggestions.filter((s) => s.status !== 'dismissed');
-  const doneSuggestions = allSuggestions.filter((s) => s.status === 'done');
-  const pendingSuggestions = allSuggestions.filter((s) => s.status === 'pending');
+  const visibleSuggestions = useMemo(
+    () => allSuggestions.filter((s) => s.status !== 'dismissed'),
+    [allSuggestions]
+  );
+
+  const doneSuggestions = useMemo(
+    () => allSuggestions.filter((s) => s.status === 'done'),
+    [allSuggestions]
+  );
+
+  const pendingSuggestions = useMemo(
+    () => allSuggestions.filter((s) => s.status === 'pending'),
+    [allSuggestions]
+  );
 
   function handleMarkDone(suggestionId: string) {
     onSuggestionStatusChange?.(suggestionId, 'done');

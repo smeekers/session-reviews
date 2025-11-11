@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { SESSION_STRINGS } from '../../constants';
 import { Stack, Typography } from '../../ui-library';
 import { useUpdateAIFeedback, useUpdateSession, useUpdateSuggestionStatus } from '../../hooks';
@@ -20,45 +20,33 @@ function SessionDetails({ session }: SessionDetailsProps) {
   const { updateSession } = useUpdateSession(session.uid);
   const sessionDuration = useMemo(() => getSessionDuration(session), [session]);
 
-  const handleSummaryFeedbackChange = useCallback(
-    async (feedback: 0 | 1) => {
-      try {
-        await updateSummaryFeedback(feedback);
-      } catch (err) {
-        console.error('Failed to update summary feedback:', err);
-      }
-    },
-    [updateSummaryFeedback]
-  );
+  async function handleSummaryFeedbackChange(feedback: 0 | 1) {
+    try {
+      await updateSummaryFeedback(feedback);
+    } catch (err) {
+      console.error('Failed to update summary feedback:', err);
+    }
+  }
 
-  const handleSuggestionStatusChange = useCallback(
-    async (suggestionId: string, status: 'done' | 'dismissed') => {
-      try {
-        await updateSuggestionStatus({ suggestionId, status });
-      } catch (err) {
-        console.error('Failed to update suggestion status:', err);
-      }
-    },
-    [updateSuggestionStatus]
-  );
+  async function handleSuggestionStatusChange(suggestionId: string, status: 'done' | 'dismissed') {
+    try {
+      await updateSuggestionStatus({ suggestionId, status });
+    } catch (err) {
+      console.error('Failed to update suggestion status:', err);
+    }
+  }
 
-  const handleSuggestionsFeedbackChange = useCallback(
-    async (feedback: 0 | 1) => {
-      try {
-        await updateSuggestionsFeedback(feedback);
-      } catch (err) {
-        console.error('Failed to update suggestions feedback:', err);
-      }
-    },
-    [updateSuggestionsFeedback]
-  );
+  async function handleSuggestionsFeedbackChange(feedback: 0 | 1) {
+    try {
+      await updateSuggestionsFeedback(feedback);
+    } catch (err) {
+      console.error('Failed to update suggestions feedback:', err);
+    }
+  }
 
-  const handleSessionNameSave = useCallback(
-    async (name: string | undefined) => {
-      await updateSession({ name });
-    },
-    [updateSession]
-  );
+  async function handleSessionNameSave(name: string | undefined) {
+    await updateSession({ name });
+  }
 
   useEffect(() => {
     if (session.status === 'completed') {

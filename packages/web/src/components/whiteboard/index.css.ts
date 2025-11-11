@@ -24,5 +24,9 @@ globalStyle(`${whiteboardContainer} .sidebar-trigger__label-element`, {
   display: 'none',
 });
 
+globalStyle(`${whiteboardContainer} .UserList__wrapper`, {
+  width: 'unset',
+});
+
 export { loadingWrapper, whiteboardContainer, whiteboardWrapper };
 

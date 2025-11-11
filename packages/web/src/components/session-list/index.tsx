@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useAtom } from 'jotai';
 import { Stack, Typography } from '../../ui-library';
 import { statusFilterAtom } from '../../atoms/filters';
@@ -11,7 +12,10 @@ interface SessionListProps {
 function SessionList({ sessions }: SessionListProps) {
   const [statusFilter] = useAtom(statusFilterAtom);
 
-  const filteredSessions = sessions.filter((session) => statusFilter[session.status] === true);
+  const filteredSessions = useMemo(
+    () => sessions.filter((session) => statusFilter[session.status] === true),
+    [sessions, statusFilter]
+  );
 
   if (filteredSessions.length === 0) {
     return (

@@ -22,12 +22,12 @@ function LiveSession({ sessionUid }: LiveSessionProps) {
   const [shareButtonText, setShareButtonText] = useState<string>(WHITEBOARD_STRINGS.SHARE_SESSION);
   const streamReadyRef = useRef(onStreamReady);
 
-  const getCurrentRecordingTime = useCallback((): number => {
+  function getCurrentRecordingTime(): number {
     if (!recordingStartTime) {
       return 0;
     }
     return Math.floor((Date.now() - recordingStartTime) / MILLISECONDS_PER_SECOND);
-  }, [recordingStartTime]);
+  }
 
   const whiteboardUrl = useMemo(
     () => `${window.location.origin}${ROUTES.WHITEBOARD(sessionUid)}`,
@@ -48,23 +48,23 @@ function LiveSession({ sessionUid }: LiveSessionProps) {
 
   const renderTopRightUI = useCallback(
     (_isMobile: boolean, _appState: unknown) => {
-      return (
-        <WhiteboardControls
+    return (
+      <WhiteboardControls
           error={error}
-          isRecording={isRecording}
+        isRecording={isRecording}
           onEndSession={stopRecording}
-          onShareSession={handleShareSession}
+        onShareSession={handleShareSession}
           onStartRecording={startRecording}
-          shareButtonText={shareButtonText}
-        />
-      );
+        shareButtonText={shareButtonText}
+      />
+    );
     },
     [error, isRecording, stopRecording, handleShareSession, startRecording, shareButtonText]
   );
 
-  const handleStreamReady = useCallback((stream: MediaStream | null) => {
+  function handleStreamReady(stream: MediaStream | null) {
     streamReadyRef.current(stream);
-  }, []);
+  }
 
   useEffect(() => {
     streamReadyRef.current = onStreamReady;

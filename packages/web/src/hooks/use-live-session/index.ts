@@ -33,31 +33,31 @@ function useLiveSession({ sessionUid }: UseLiveSessionOptions) {
 
   const handleRecordingStop = useCallback(
     async (blob: Blob | null) => {
-      if (!blob) {
-        return;
-      }
+    if (!blob) {
+      return;
+    }
 
+    setBannerState({
+      type: 'processing',
+      sessionUid,
+      sessionName: session?.name,
+    });
+
+    navigate(ROUTES.HOME);
+
+    try {
+      await endSession(blob);
+
+      // TODO: I either need to add polling or more ideally an event listener as the real process would make this time out
       setBannerState({
-        type: 'processing',
+        type: 'completed',
         sessionUid,
         sessionName: session?.name,
       });
-
-      navigate(ROUTES.HOME);
-
-      try {
-        await endSession(blob);
-
-        // TODO: I either need to add polling or more ideally an event listener as the real process would make this time out
-        setBannerState({
-          type: 'completed',
-          sessionUid,
-          sessionName: session?.name,
-        });
-      } catch (err) {
-        console.error('Failed to end session:', err);
-        setBannerState({ type: 'hidden' });
-      }
+    } catch (err) {
+      console.error('Failed to end session:', err);
+      setBannerState({ type: 'hidden' });
+    }
     },
     [endSession, navigate, session?.name, sessionUid, setBannerState]
   );

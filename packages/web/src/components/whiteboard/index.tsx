@@ -30,6 +30,17 @@ function Whiteboard({ className, renderTopRightUI, roomId }: WhiteboardProps) {
     isLoading,
   });
 
+  const handlePointerUpdate = useCallback(
+    (payload: { pointer: { x: number; y: number } | null }) => {
+      if (room) {
+        room.updatePresence({
+          cursor: payload.pointer ? { x: payload.pointer.x, y: payload.pointer.y } : null,
+        });
+      }
+    },
+    [room]
+  );
+
   if (isLoading) {
     return (
       <div className={className ? `${className} ${styles.loadingWrapper}` : styles.loadingWrapper}>
@@ -49,16 +60,7 @@ function Whiteboard({ className, renderTopRightUI, roomId }: WhiteboardProps) {
           initialData={{
             elements: initialElements,
           }}
-          onPointerUpdate={useCallback(
-            (payload: { pointer: { x: number; y: number } | null }) => {
-              if (room) {
-                room.updatePresence({
-                  cursor: payload.pointer ? { x: payload.pointer.x, y: payload.pointer.y } : null,
-                });
-              }
-            },
-            [room]
-          )}
+          onPointerUpdate={handlePointerUpdate}
           renderTopRightUI={renderTopRightUI}
         />
       </div>
