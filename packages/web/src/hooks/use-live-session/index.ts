@@ -33,10 +33,8 @@ function useLiveSession({ sessionUid }: UseLiveSessionOptions) {
 
   const handleRecordingStop = useCallback(
     async (blob: Blob | null) => {
-    if (!blob) {
-      return;
-    }
-
+    // For mocked recording, blob will be empty/null, so we pass null
+    // and use-end-session will fetch the fake MP4 file instead
     setBannerState({
       type: 'processing',
       sessionUid,

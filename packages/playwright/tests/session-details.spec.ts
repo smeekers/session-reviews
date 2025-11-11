@@ -1,46 +1,49 @@
 import { expect, test } from '@playwright/test';
+import { createSessionAndWaitForCard, createSessionAndNavigateToDetails } from './helpers';
 
 test.describe('Session Details Page', () => {
   test('should create session, join live session, and view details', async ({ page }) => {
-    // Step 1: Create a new session from home
-    await page.goto('/');
-    await expect(page.getByRole('heading', { name: 'Session Reviews' })).toBeVisible();
+    // Step 1: Create a new session and navigate to live session
+    await createSessionAndWaitForCard(page, 'Session Details Test');
 
-    // Create new session
-    const newSessionButton = page.getByRole('button', { name: 'New Session' });
-    await newSessionButton.click();
-    await expect(page.getByRole('dialog')).toBeVisible();
-    
-    const sessionNameInput = page.getByLabel('Session Name');
-    await sessionNameInput.fill('Session Details Test');
-    
-    await page.getByRole('button', { name: 'Create Session' }).click();
-    await expect(page.getByRole('dialog')).not.toBeVisible({ timeout: 5000 });
-
-    // Step 2: Wait for session card and navigate to live session
-    await page.waitForSelector('[data-testid="session-card"]', { timeout: 10000 });
-    const firstSessionCard = page.locator('[data-testid="session-card"]').first();
-    await firstSessionCard.click();
-
-    // Wait for live session page
-    await page.waitForURL(/\/live-session\/(session_\d+)/, { timeout: 5000 });
-    const sessionUid = page.url().match(/\/live-session\/(session_\d+)/)?.[1];
-    
-    if (!sessionUid) {
-      test.skip();
-      return;
-    }
-
-    // Wait for live session to load
+    // Wait for live session to load - check for Share button or webcam panel
     await page.waitForLoadState('networkidle');
-    await expect(page.locator('canvas')).toBeVisible({ timeout: 10000 });
+    // Wait for either the Share button or webcam video to indicate page is loaded
+    try {
+      await Promise.race([
+        page.getByRole('button', { name: /Share/i }).waitFor({ state: 'visible', timeout: 10000 }),
+        page.locator('video').waitFor({ state: 'visible', timeout: 10000 }),
+      ]);
+    } catch {
+      // If neither appears, just wait a bit more for Excalidraw to load
+      await page.waitForTimeout(2000);
+    }
 
     // Take screenshot of live session
     await page.screenshot({ path: 'tests/screenshots/live-session-before-details.png', fullPage: true });
 
-    // Step 3: Navigate to session details page
-    // We can navigate directly using the URL pattern
-    await page.goto(`/sessions/${sessionUid}`);
+    // Step 2: Start recording, then end the session and navigate to details
+    const startRecordingButton = page.getByRole('button', { name: /Start Recording/i });
+    await startRecordingButton.click();
+    
+    // Wait a moment for recording to start
+    await page.waitForTimeout(1000);
+    
+    // End the session (will auto-navigate)
+    const endSessionButton = page.getByRole('button', { name: /End Session/i });
+    await endSessionButton.click();
+    
+    // Wait for automatic navigation to home after session ends
+    await page.waitForURL('/', { timeout: 10000 });
+    await page.waitForLoadState('networkidle');
+    
+    // Wait for the banner with "View Now" button to appear (indicates session is processed)
+    const viewNowButton = page.getByRole('button', { name: /View Now/i });
+    await expect(viewNowButton).toBeVisible({ timeout: 40000 });
+    
+    // Click the "View Now" button to navigate to details
+    await viewNowButton.click();
+    await page.waitForURL(/\/sessions\/(session_\d+)/, { timeout: 5000 });
     await page.waitForLoadState('networkidle');
 
     // Wait for session details to load
@@ -54,38 +57,7 @@ test.describe('Session Details Page', () => {
 
   test('should display session summary if available', async ({ page }) => {
     // Create a new session and navigate to details
-    await page.goto('/');
-    await expect(page.getByRole('heading', { name: 'Session Reviews' })).toBeVisible();
-
-    // Create new session
-    const newSessionButton = page.getByRole('button', { name: 'New Session' });
-    await newSessionButton.click();
-    await expect(page.getByRole('dialog')).toBeVisible();
-    
-    await page.getByLabel('Session Name').fill('Summary Test');
-    await page.getByRole('button', { name: 'Create Session' }).click();
-    await expect(page.getByRole('dialog')).not.toBeVisible({ timeout: 5000 });
-
-    // Navigate to live session first
-    await page.waitForSelector('[data-testid="session-card"]', { timeout: 10000 });
-    const sessionUid = await page.locator('[data-testid="session-card"]').first().getAttribute('data-session-uid');
-    
-    if (!sessionUid) {
-      // Extract from URL after clicking
-      await page.locator('[data-testid="session-card"]').first().click();
-      await page.waitForURL(/\/live-session\/(session_\d+)/, { timeout: 5000 });
-      const match = page.url().match(/\/live-session\/(session_\d+)/);
-      if (!match) {
-        test.skip();
-        return;
-      }
-      const uid = match[1];
-      await page.goto(`/sessions/${uid}`);
-    } else {
-      await page.goto(`/sessions/${sessionUid}`);
-    }
-
-    await page.waitForLoadState('networkidle');
+    await createSessionAndNavigateToDetails(page, 'Summary Test');
 
     // Wait for summary section (may not be available for new sessions)
     const summaryHeading = page.getByRole('heading', { name: 'Summary' });

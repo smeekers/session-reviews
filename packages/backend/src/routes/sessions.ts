@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { MOCK_VIDEO_URL } from '../constants/video';
 import { store } from '../data';
 import { generateMockSummary, generateMockTranscript } from '../lib/mock-ai';
+import { uploadRecording, downloadRecording } from '../lib/s3-upload';
 import type { AISuggestion, AISummaryComponent } from '../data/memory-store';
 
 export const sessionsRouter = Router();
@@ -319,12 +320,24 @@ sessionsRouter.post('/:uid/end', upload.single('recording'), async (req, res) =>
       endTime: new Date().toISOString(),
     });
 
-    // Step 2: Upload to S3 (mock for now - just set the mock URL)
-    // In production, this would upload req.file.buffer to S3
-    // Note: Currently the recording blob is received but not stored anywhere
-    // In production, req.file.buffer would be uploaded to S3 here
-    await delay(10000);
-    const videoUrl = MOCK_VIDEO_URL;
+    // Step 2: Upload to S3
+    let videoUrl: string;
+    if (req.file && req.file.buffer) {
+      try {
+        const contentType = req.file.mimetype || 'video/webm';
+        const result = await uploadRecording(req.file.buffer, req.params.uid, contentType);
+        videoUrl = result.url;
+        console.log(`Uploaded recording to S3: ${result.key}`);
+      } catch (uploadError) {
+        console.error('Failed to upload recording to S3:', uploadError);
+        // Fall back to mock URL if upload fails
+        videoUrl = MOCK_VIDEO_URL;
+      }
+    } else {
+      // No file provided, use mock URL
+      console.warn('No recording file provided, using mock URL');
+      videoUrl = MOCK_VIDEO_URL;
+    }
 
     // Step 3: Generate transcript (mock)
     await delay(8000);
@@ -369,5 +382,48 @@ sessionsRouter.put('/:uid/mark-reviewed', async (req, res) => {
     res.json(session);
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// GET /api/sessions/:uid/recording - Download recording from S3
+// Query param: key (S3 key) - if not provided, extracts from session videoUrl
+sessionsRouter.get('/:uid/recording', async (req, res) => {
+  try {
+    const session = await store.getSession(req.params.uid);
+    if (!session) {
+      return res.status(404).json({ error: 'Session not found' });
+    }
+
+    let key: string;
+    if (req.query.key && typeof req.query.key === 'string') {
+      key = req.query.key;
+    } else if (session.videoUrl) {
+      // Extract key from S3 URL
+      // Format: https://bucket.s3.region.amazonaws.com/key
+      const urlMatch = session.videoUrl.match(/s3\.[^.]+\.amazonaws\.com\/(.+)$/);
+      if (urlMatch) {
+        key = urlMatch[1];
+      } else {
+        return res.status(400).json({ error: 'Could not extract S3 key from videoUrl' });
+      }
+    } else {
+      return res.status(404).json({ error: 'No recording found for this session' });
+    }
+
+    const buffer = await downloadRecording(key);
+    
+    // Determine content type from key extension
+    const contentType = key.endsWith('.mp4') 
+      ? 'video/mp4' 
+      : key.endsWith('.webm')
+      ? 'video/webm'
+      : 'video/mp4'; // default
+
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Content-Disposition', `attachment; filename="${key.split('/').pop()}"`);
+    res.send(buffer);
+  } catch (error) {
+    console.error('Error downloading recording:', error);
+    res.status(500).json({ error: 'Failed to download recording' });
   }
 });
